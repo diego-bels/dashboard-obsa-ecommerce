@@ -254,9 +254,10 @@
         <th onclick="sortBy('uds_obsa')">Uds. OBSA <span class="si"></span></th>
         <th onclick="sortBy('uds_total')">Uds. Total <span class="si"></span></th>
         <th onclick="sortBy('pesos_total')">Facturacion <span class="si"></span></th>
+        <th onclick="sortBy('dias_stock')">Días Stock <span class="si"></span></th>
       </tr>
     </thead>
-    <tbody id="tBody"><tr><td colspan="9" class="no-data">Cargando...</td></tr></tbody>
+    <tbody id="tBody"><tr><td colspan="10" class="no-data">Cargando...</td></tr></tbody>
   </table>
 </div>
 
@@ -344,7 +345,9 @@ let expandedRubro = null;
 let skuSortCol = 'uTotal', skuSortAsc = false;
 let currentSkuRows = [];
 
-const COL_IDX = {rubro:0,stock_col:1,stock_full:2,stock_total:3,uds_ml:4,uds_bna:5,uds_obsa:6,uds_total:7,pesos_total:8};
+const COL_IDX = {rubro:0,stock_col:1,stock_full:2,stock_total:3,uds_ml:4,uds_bna:5,uds_obsa:6,uds_total:7,pesos_total:8,dias_stock:9};
+
+let diasPeriodo = 1;
 
 function fmt(n)   { return Math.round(n).toLocaleString('es-AR'); }
 function fmtP(n)  {
@@ -359,10 +362,25 @@ function fmtSt(n) {
   return `<span style="color:${color};font-weight:${weight}">${fmt(n)}</span>`;
 }
 
+function fmtDias(stock, uds) {
+  if (uds === 0) return stock > 0 ? '<span style="color:#6b7280;font-weight:600">∞</span>' : '<span style="color:#ccc">—</span>';
+  const avg = uds / diasPeriodo;
+  const dias = Math.round(stock / avg);
+  let color, bg;
+  if (dias <= 7)       { color = '#991b1b'; bg = '#fee2e2'; }
+  else if (dias <= 30) { color = '#92400e'; bg = '#fef3c7'; }
+  else                 { color = '#166534'; bg = '#dcfce7'; }
+  return `<span style="background:${bg};color:${color};font-weight:700;padding:2px 8px;border-radius:10px;font-size:0.82rem;">${dias}d</span>`;
+}
+
 function aplicar() {
   const desde   = document.getElementById('fDesde').value;
   const hasta   = document.getElementById('fHasta').value;
   const canales = [...document.querySelectorAll('.canal-checks input:checked')].map(i=>i.value);
+
+  // Calcular días del período
+  const d1 = new Date(desde), d2 = new Date(hasta);
+  diasPeriodo = Math.max(1, Math.round((d2 - d1) / 86400000) + 1);
 
   const marcaFiltro = selectedMarcas.size > 0 ? selectedMarcas : null;
   const filtered = TX.filter(t =>
@@ -408,12 +426,16 @@ function aplicar() {
   currentData = [...allRubros].map(rubro => {
     const v = rubMap[rubro] || {uml:0,ubna:0,uobsa:0,pml:0,pbna:0,pobsa:0,skuV:{}};
     const s = stockBase[rubro] || {col:0,full:0,total:0};
+    const uds_total = v.uml+v.ubna+v.uobsa;
+    const avg_dia = diasPeriodo > 0 ? uds_total / diasPeriodo : 0;
+    const dias_stock = avg_dia > 0 ? Math.round(s.total / avg_dia) : (s.total > 0 ? 99999 : 0);
     return {
       rubro,
       stock_col: s.col, stock_full: s.full, stock_total: s.total,
       uds_ml: v.uml, uds_bna: v.ubna, uds_obsa: v.uobsa,
-      uds_total: v.uml+v.ubna+v.uobsa,
+      uds_total,
       pesos_total: v.pml+v.pbna+v.pobsa,
+      dias_stock,
       skuV: v.skuV,
     };
   });
@@ -449,7 +471,7 @@ function render() {
   const maxUd = Math.max(...sorted.map(r=>r.uds_total),1);
 
   const body = document.getElementById('tBody');
-  if(!sorted.length) { body.innerHTML='<tr><td colspan="9" class="no-data">Sin datos para el periodo seleccionado</td></tr>'; return; }
+  if(!sorted.length) { body.innerHTML='<tr><td colspan="10" class="no-data">Sin datos para el periodo seleccionado</td></tr>'; return; }
 
   body.innerHTML = sorted.map(r => {
     const isExp = r.rubro===expandedRubro;
@@ -466,12 +488,13 @@ function render() {
   <td class="num">${dash(r.uds_obsa)}</td>
   <td class="num bold"><div class="bar-wrap"><div class="bar bv" style="width:${wU}px"></div>${fmt(r.uds_total)}</div></td>
   <td class="num">${fmtP(r.pesos_total)}</td>
+  <td class="num">${fmtDias(r.stock_total, r.uds_total)}</td>
 </tr>
 ${isExp ? buildSkuRows(r) : ''}`;
   }).join('');
 }
 
-const SKU_COLS = ['sku','desc','col','full','total','uml','ubna','uobsa','uTotal','pTotal'];
+const SKU_COLS = ['sku','desc','col','full','total','uml','ubna','uobsa','uTotal','pTotal','diasStock'];
 
 function buildSkuRows(r) {
   const skuStock = {};
@@ -488,7 +511,9 @@ function buildSkuRows(r) {
     const desc = st.desc||vn.desc||sku;
     const uTotal = vn.uml+vn.ubna+vn.uobsa;
     const pTotal = vn.pml+vn.pbna+vn.pobsa;
-    return {sku, desc, col:st.col, full:st.full, total:st.total, uml:vn.uml, ubna:vn.ubna, uobsa:vn.uobsa, uTotal, pTotal, cuotas:vn.cuotas||{}};
+    const avgDia = diasPeriodo > 0 ? uTotal / diasPeriodo : 0;
+    const diasStock = avgDia > 0 ? Math.round(st.total / avgDia) : (st.total > 0 ? 99999 : 0);
+    return {sku, desc, col:st.col, full:st.full, total:st.total, uml:vn.uml, ubna:vn.ubna, uobsa:vn.uobsa, uTotal, pTotal, diasStock, cuotas:vn.cuotas||{}};
   });
 
   skuSortCol = 'uTotal'; skuSortAsc = false;
@@ -512,6 +537,7 @@ function buildSkuRows(r) {
       <th onclick="sortSkuBy('uobsa','${uid}')">Uds. OBSA <span class="si"></span></th>
       <th onclick="sortSkuBy('uTotal','${uid}')">Uds. Total <span class="si"></span></th>
       <th onclick="sortSkuBy('pTotal','${uid}')">Facturacion <span class="si"></span></th>
+      <th onclick="sortSkuBy('diasStock','${uid}')">Días Stock <span class="si"></span></th>
       <th>Cuotas (todos los canales)</th>
     </tr></thead>
     <tbody id="${uid}_body"></tbody>
@@ -563,6 +589,7 @@ function renderSkuBody(uid) {
       <td class="num">${dash(s.uobsa)}</td>
       <td class="num bold">${dash(s.uTotal)}</td>
       <td class="num">${s.pTotal>0?fmtP(s.pTotal):'<span style="color:#ccc">—</span>'}</td>
+      <td class="num">${fmtDias(s.total, s.uTotal)}</td>
       <td>${renderCuotas(s.cuotas)}</td>
     </tr>`).join('');
 }
