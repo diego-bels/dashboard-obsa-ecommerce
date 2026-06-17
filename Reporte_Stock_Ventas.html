@@ -28,14 +28,27 @@
   }
   .filter-group input[type=date]:focus { border-color: #0f3460; }
 
-  .preset-btns { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-  .preset-btn {
-    padding: 5px 13px; border: 1.5px solid #d0d7de; border-radius: 20px;
-    background: white; color: #444; font-size: 0.8rem; font-weight: 600;
-    cursor: pointer; transition: all 0.15s; white-space: nowrap;
-  }
-  .preset-btn:hover { border-color: #0f3460; color: #0f3460; background: #f0f4ff; }
-  .preset-btn.active { background: #0f3460; color: white; border-color: #0f3460; }
+  .drp-trigger { background: #e8eaf6; color: #0f3460; border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 7px; cursor: pointer; white-space: nowrap; }
+  .drp-trigger:hover { background: #c5cae9; }
+  .drp-wrap { position: relative; }
+  .drp-panel { position: absolute; top: calc(100% + 6px); left: 0; z-index: 999; background: #fff; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.18); display: none; flex-direction: row; min-width: 580px; }
+  .drp-left { padding: 14px 10px; border-right: 1px solid #e8ecf0; display: flex; flex-direction: column; gap: 4px; min-width: 160px; }
+  .drp-pre { background: none; border: none; border-radius: 7px; padding: 7px 12px; font-size: 12px; font-weight: 600; color: #37474f; text-align: left; cursor: pointer; transition: background .15s; }
+  .drp-pre:hover { background: #e8eaf6; }
+  .drp-pre.active { background: #0f3460; color: #fff; }
+  .drp-right { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .drp-cals { display: flex; gap: 18px; }
+  .drp-mhdr { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 13px; margin-bottom: 6px; color: #0f3460; }
+  .drp-grid { display: grid; grid-template-columns: repeat(7, 32px); gap: 2px; }
+  .drp-dh { width: 32px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #90a4ae; }
+  .drp-day { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 50%; cursor: pointer; transition: background .1s; }
+  .drp-day:hover { background: #e8eaf6; }
+  .drp-day.sel { background: #0f3460; color: #fff; font-weight: 700; }
+  .drp-day.in-range { background: #e8eaf6; border-radius: 0; }
+  .drp-foot { display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #e8ecf0; padding-top: 10px; }
+  .drp-foot button { border-radius: 7px; padding: 7px 18px; font-size: 13px; border: none; cursor: pointer; font-weight: 600; }
+  .drp-cancel { background: #f5f5f5; color: #555; }
+  .drp-apply { background: #0f3460; color: #fff; }
 
   .canal-checks { display: flex; gap: 10px; align-items: center; }
   .canal-checks label {
@@ -72,7 +85,7 @@
 
   /* ── Tabla principal (rubros) ── */
   table.main {
-    width: 100%; border-collapse: collapse; background: white;
+    width: 100%; border-collapse: collapse; background: #f0f6ff;
     border-radius: 10px; overflow: hidden;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08); font-size: 0.86rem;
   }
@@ -88,7 +101,7 @@
   th.desc .si::after  { content: '▼'; opacity: 1; }
   th:not(.asc):not(.desc) .si::after { content: '⇅'; }
 
-  table.main tbody tr.rubro-row { cursor: pointer; transition: background 0.1s; }
+  table.main tbody tr.rubro-row { cursor: pointer; transition: background 0.1s; background: white; }
   table.main tbody tr.rubro-row:nth-child(even) { background: #f7f9fc; }
   table.main tbody tr.rubro-row:hover { background: #dbeafe; }
   table.main tbody tr.rubro-row.expanded { background: #dbeafe !important; font-weight: 600; }
@@ -108,6 +121,7 @@
 
   /* ── Fila expandible con tabla SKU ── */
   tr.sku-container td { padding: 0; background: #f0f6ff; border-bottom: 2px solid #3a86ff; }
+  .sku-scroll { overflow-x: scroll; display: block; max-width: calc(100vw - 120px); }
   table.sku-table {
     width: 100%; border-collapse: collapse; font-size: 0.82rem;
   }
@@ -184,6 +198,8 @@
 </head>
 <body>
 
+<input type="hidden" id="fDesde">
+<input type="hidden" id="fHasta">
 <header>
   <h1>Stock vs Ventas por Rubro</h1>
   <p>OBSA &mdash; Dashboard Ecommerce &mdash; Haga clic en un rubro para ver los SKUs</p>
@@ -191,20 +207,32 @@
 
 <div class="filters">
   <div class="filter-group">
-    <label>Desde</label>
-    <input type="date" id="fDesde">
-  </div>
-  <div class="filter-group">
-    <label>Hasta</label>
-    <input type="date" id="fHasta">
-  </div>
-  <div class="filter-group">
-    <label>Periodo</label>
-    <div class="preset-btns">
-      <button class="preset-btn" onclick="setPreset(1,  this)">Ultimo dia</button>
-      <button class="preset-btn" onclick="setPreset(7,  this)">Ultimos 7 dias</button>
-      <button class="preset-btn" onclick="setPreset(15, this)">Ultimos 15 dias</button>
-      <button class="preset-btn" onclick="setPreset(30, this)">Ultimo mes</button>
+    <div class="drp-wrap" id="drpWrap">
+      <button class="drp-trigger" id="drpTrigger" onclick="drpToggle()">
+        📅 <span id="drpLabel">Cargando...</span>
+      </button>
+      <div class="drp-panel" id="drpPanel">
+        <div class="drp-left">
+          <button class="drp-pre" data-p="hoy"     onclick="drpPreset('hoy')">Hoy</button>
+          <button class="drp-pre" data-p="ayer"    onclick="drpPreset('ayer')">Ayer</button>
+          <button class="drp-pre" data-p="7d"      onclick="drpPreset('7d')">Últimos 7 días</button>
+          <button class="drp-pre" data-p="15d"     onclick="drpPreset('15d')">Últimos 15 días</button>
+          <button class="drp-pre" data-p="30d"     onclick="drpPreset('30d')">Últimos 30 días</button>
+          <button class="drp-pre" data-p="mes_ant" onclick="drpPreset('mes_ant')">Mes anterior</button>
+          <button class="drp-pre" data-p="mes_act" onclick="drpPreset('mes_act')">Mes actual</button>
+          <button class="drp-pre active" data-p="custom">Rango personalizado</button>
+        </div>
+        <div class="drp-right">
+          <div class="drp-cals">
+            <div id="drpCal0"></div>
+            <div id="drpCal1"></div>
+          </div>
+          <div class="drp-foot">
+            <button class="drp-cancel" onclick="drpCancel()">Cancelar</button>
+            <button class="drp-apply" onclick="drpApply()">Aplicar</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <div class="filter-group">
@@ -370,7 +398,7 @@ function fmtDias(stock, uds) {
   if (dias <= 7)       { color = '#991b1b'; bg = '#fee2e2'; }
   else if (dias <= 30) { color = '#92400e'; bg = '#fef3c7'; }
   else                 { color = '#166534'; bg = '#dcfce7'; }
-  return `<span style="background:${bg};color:${color};font-weight:700;padding:2px 8px;border-radius:10px;font-size:0.82rem;">${dias}d</span>`;
+  return `<span style="color:${color};font-weight:700;font-size:0.9rem;">${dias}d</span>`;
 }
 
 function aplicar() {
@@ -525,6 +553,7 @@ function buildSkuRows(r) {
     <input type="text" id="${uid}_q" placeholder="Buscar SKU o descripcion..." oninput="renderSkuBody('${uid}')">
     <span class="sku-count" id="${uid}_count"></span>
   </div>
+  <div class="sku-scroll">
   <table class="sku-table" id="${uid}">
     <thead><tr>
       <th onclick="sortSkuBy('sku','${uid}')">SKU <span class="si"></span></th>
@@ -542,6 +571,7 @@ function buildSkuRows(r) {
     </tr></thead>
     <tbody id="${uid}_body"></tbody>
   </table>
+  </div>
 </td></tr>`;
 }
 
@@ -637,35 +667,104 @@ function updateCards() {
   document.getElementById('cPesos').textContent = fmtP(currentData.reduce((s,r)=>s+r.pesos_total,0));
 }
 
-// ── Presets de periodo ────────────────────────────────────────────────────────
+// ── Date Range Picker ────────────────────────────────────────────────────────
 const DATA_MAX = '2026-06-16';
+let drpFrom = DATA_MAX, drpTo = DATA_MAX, drpSelecting = false, drpViewYear, drpViewMonth;
+const DRP_MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const DRP_DIAS  = ['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
 
-function toYMD(d) {
-  return d.toISOString().slice(0, 10);
+function drpFmtLabel(f, t) {
+  const fd = d => d.split('-').reverse().join('/');
+  return fd(f) + (f !== t ? ' — ' + fd(t) : '');
 }
-
-function setPreset(dias, btn) {
-  const hoy  = new Date();
-  const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1);
-  const hasta = toYMD(ayer) <= DATA_MAX ? toYMD(ayer) : DATA_MAX;
-
-  const desde = new Date(ayer);
-  desde.setDate(ayer.getDate() - (dias - 1));
-
-  document.getElementById('fDesde').value = toYMD(desde);
-  document.getElementById('fHasta').value = hasta;
-
-  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-
+function drpInit() {
+  const d = new Date(DATA_MAX);
+  drpViewYear = d.getFullYear(); drpViewMonth = d.getMonth();
+  document.getElementById('drpLabel').textContent = drpFmtLabel(DATA_MAX, DATA_MAX);
+  drpRender();
+}
+function drpToggle() {
+  const p = document.getElementById('drpPanel');
+  const open = p.style.display === 'flex';
+  p.style.display = open ? 'none' : 'flex';
+  if (!open) drpRender();
+}
+function drpClose() { document.getElementById('drpPanel').style.display = 'none'; }
+function drpApply() {
+  document.getElementById('fDesde').value = drpFrom;
+  document.getElementById('fHasta').value = drpTo;
+  document.getElementById('drpLabel').textContent = drpFmtLabel(drpFrom, drpTo);
+  drpClose();
   aplicar();
 }
+function drpCancel() { drpClose(); }
+function drpPreset(p) {
+  const max = new Date(DATA_MAX); let f, t = DATA_MAX;
+  if (p === 'hoy')      { f = DATA_MAX; }
+  else if (p === 'ayer')    { const d=new Date(max); d.setDate(d.getDate()-1); f=t=d.toISOString().slice(0,10); }
+  else if (p === '7d')      { const d=new Date(max); d.setDate(d.getDate()-6); f=d.toISOString().slice(0,10); }
+  else if (p === '15d')     { const d=new Date(max); d.setDate(d.getDate()-14); f=d.toISOString().slice(0,10); }
+  else if (p === '30d')     { const d=new Date(max); d.setDate(d.getDate()-29); f=d.toISOString().slice(0,10); }
+  else if (p === 'mes_ant') {
+    const d=new Date(max.getFullYear(),max.getMonth(),1); d.setDate(0);
+    const first=new Date(d.getFullYear(),d.getMonth(),1);
+    f=first.toISOString().slice(0,10); t=d.toISOString().slice(0,10);
+  }
+  else if (p === 'mes_act') { const d=new Date(max); f=new Date(d.getFullYear(),d.getMonth(),1).toISOString().slice(0,10); }
+  else return;
+  drpFrom=f; drpTo=t; drpSelecting=false;
+  document.querySelectorAll('.drp-pre').forEach(b=>b.classList.toggle('active', b.dataset.p===p));
+  drpRender();
+}
+function drpRender() {
+  for (let m = 0; m < 2; m++) {
+    let y = drpViewYear, mo = drpViewMonth + m;
+    if (mo > 11) { mo -= 12; y++; }
+    document.getElementById('drpCal'+m).innerHTML = drpBuildMonth(y, mo);
+  }
+}
+function drpBuildMonth(y, mo) {
+  const first=new Date(y,mo,1), last=new Date(y,mo+1,0);
+  let dow=first.getDay(); dow=dow===0?6:dow-1;
+  let h=`<div class="drp-mhdr">
+    <button style="background:none;border:none;cursor:pointer;font-size:1rem;color:#0f3460" onclick="drpNav(-1)">◀</button>
+    <span>${DRP_MESES[mo]}. ${y}</span>
+    <button style="background:none;border:none;cursor:pointer;font-size:1rem;color:#0f3460" onclick="drpNav(1)">▶</button>
+  </div><div class="drp-grid">`;
+  DRP_DIAS.forEach(d => h += `<div class="drp-dh">${d}</div>`);
+  for (let i=0; i<dow; i++) h += `<div></div>`;
+  for (let d=1; d<=last.getDate(); d++) {
+    const iso=`${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let cls='drp-day';
+    if (iso===drpFrom||iso===drpTo) cls+=' sel';
+    else if (iso>drpFrom&&iso<drpTo) cls+=' in-range';
+    h += `<div class="${cls}" onclick="drpClick('${iso}')">${d}</div>`;
+  }
+  return h+'</div>';
+}
+function drpNav(dir) {
+  drpViewMonth += dir;
+  if (drpViewMonth > 11) { drpViewMonth=0; drpViewYear++; }
+  if (drpViewMonth < 0)  { drpViewMonth=11; drpViewYear--; }
+  drpRender();
+}
+function drpClick(iso) {
+  if (!drpSelecting || iso < drpFrom) {
+    drpFrom=iso; drpTo=iso; drpSelecting=true;
+    document.querySelectorAll('.drp-pre').forEach(b=>b.classList.toggle('active', b.dataset.p==='custom'));
+  } else { drpTo=iso; drpSelecting=false; }
+  drpRender();
+}
+document.addEventListener('click', e => {
+  const w = document.getElementById('drpWrap');
+  if (w && !w.contains(e.target)) drpClose();
+});
 
-// Inicializar widget de marcas
+// Inicializar
 initMarcas();
-
-// Inicializar en "Ultimo dia" activo por defecto
-setPreset(1, document.querySelector('.preset-btn'));
+drpInit();
+drpPreset('hoy');
+drpApply();
 </script>
 </body>
 </html>
