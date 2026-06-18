@@ -129,7 +129,7 @@
 
   /* ── Fila expandible con tabla SKU ── */
   tr.sku-container td { padding: 0; background: #f0f6ff; border-bottom: 2px solid #3a86ff; }
-  .sku-scroll { overflow-x: scroll; display: block; max-width: calc(100vw - 120px); }
+  .sku-scroll { overflow-x: auto; display: block; max-width: calc(100vw - 120px); }
   table.sku-table {
     width: 100%; border-collapse: collapse; font-size: 0.82rem;
   }
@@ -280,8 +280,7 @@
         <th onclick="sortBy('rubro')">Rubro <span class="si"></span></th>
         <th onclick="sortBy('stock_col')">Stock COL <span class="si"></span></th>
         <th onclick="sortBy('stock_full')">Stock Full <span class="si"></span></th>
-        <th onclick="sortBy('stock_total')">Stock Total <span class="si"></span></th>
-        <th onclick="sortBy('uds_total')" id="th-uds">Unidades Vendidas <span class="si"></span></th>
+        <th onclick="sortBy('uds_total')" id="th-uds">Unid. Vend. <span class="si"></span></th>
         <th onclick="sortBy('pesos_total')">Facturacion <span class="si"></span></th>
         <th onclick="sortBy('dias_stock')">Días Stock <span class="si"></span></th>
       </tr>
@@ -374,7 +373,7 @@ let expandedRubro = null;
 let skuSortCol = 'uTotal', skuSortAsc = false;
 let currentSkuRows = [];
 
-const COL_IDX = {rubro:0,stock_col:1,stock_full:2,stock_total:3,uds_total:4,pesos_total:5,dias_stock:6};
+const COL_IDX = {rubro:0,stock_col:1,stock_full:2,uds_total:3,pesos_total:4,dias_stock:5};
 
 let diasPeriodo = 1;
 
@@ -518,7 +517,6 @@ function render() {
   <td class="rubro-name"><span class="expand-icon">${isExp?'▶':'▶'}</span>${r.rubro}</td>
   <td class="num"><div class="bar-wrap"><div class="bar bc" style="width:${wC}px"></div>${fmtSt(r.stock_col)}</div></td>
   <td class="num"><div class="bar-wrap"><div class="bar bf" style="width:${wF}px"></div>${fmtSt(r.stock_full)}</div></td>
-  <td class="num bold">${fmtSt(r.stock_total)}</td>
   <td class="num bold"><div class="bar-wrap"><div class="bar bv" style="width:${wU}px"></div>${fmt(r.uds_total)}</div></td>
   <td class="num">${fmtP(r.pesos_total)}</td>
   <td class="num">${fmtDias(r.stock_total, r.uds_total)}</td>
@@ -527,7 +525,7 @@ ${isExp ? buildSkuRows(r) : ''}`;
   }).join('');
 }
 
-const SKU_COLS = ['sku','desc','col','full','total','uTotal','pTotal','diasStock'];
+const SKU_COLS = ['sku','desc','col','full','uTotal','pTotal','diasStock'];
 
 function buildSkuRows(r) {
   const skuStock = {};
@@ -565,8 +563,7 @@ function buildSkuRows(r) {
       <th onclick="sortSkuBy('desc','${uid}')">Descripcion <span class="si"></span></th>
       <th onclick="sortSkuBy('col','${uid}')">Stock COL <span class="si"></span></th>
       <th onclick="sortSkuBy('full','${uid}')">Stock Full <span class="si"></span></th>
-      <th onclick="sortSkuBy('total','${uid}')">Stock Total <span class="si"></span></th>
-      <th onclick="sortSkuBy('uTotal','${uid}')">Unidades Vendidas <span class="si"></span></th>
+      <th onclick="sortSkuBy('uTotal','${uid}')">Unid. Vend. <span class="si"></span></th>
       <th onclick="sortSkuBy('pTotal','${uid}')">Facturacion <span class="si"></span></th>
       <th onclick="sortSkuBy('diasStock','${uid}')">Días Stock <span class="si"></span></th>
       <th>Cuotas (todos los canales)</th>
@@ -615,7 +612,6 @@ function renderSkuBody(uid) {
       <td style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${s.desc}">${s.desc}</td>
       <td class="num">${fmtSt(s.col)}</td>
       <td class="num">${fmtSt(s.full)}</td>
-      <td class="num bold">${fmtSt(s.total)}</td>
       <td class="num bold">${dash(s.uTotal)}</td>
       <td class="num">${s.pTotal>0?fmtP(s.pTotal):'<span style="color:#ccc">—</span>'}</td>
       <td class="num">${fmtDias(s.total, s.uTotal)}</td>
