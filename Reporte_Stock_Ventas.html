@@ -281,10 +281,7 @@
         <th onclick="sortBy('stock_col')">Stock COL <span class="si"></span></th>
         <th onclick="sortBy('stock_full')">Stock Full <span class="si"></span></th>
         <th onclick="sortBy('stock_total')">Stock Total <span class="si"></span></th>
-        <th onclick="sortBy('uds_ml')">Uds. ML <span class="si"></span></th>
-        <th onclick="sortBy('uds_bna')">Uds. BNA <span class="si"></span></th>
-        <th onclick="sortBy('uds_obsa')">Uds. OBSA <span class="si"></span></th>
-        <th onclick="sortBy('uds_total')">Uds. Total <span class="si"></span></th>
+        <th onclick="sortBy('uds_total')" id="th-uds">Unidades Vendidas <span class="si"></span></th>
         <th onclick="sortBy('pesos_total')">Facturacion <span class="si"></span></th>
         <th onclick="sortBy('dias_stock')">Días Stock <span class="si"></span></th>
       </tr>
@@ -377,7 +374,7 @@ let expandedRubro = null;
 let skuSortCol = 'uTotal', skuSortAsc = false;
 let currentSkuRows = [];
 
-const COL_IDX = {rubro:0,stock_col:1,stock_full:2,stock_total:3,uds_ml:4,uds_bna:5,uds_obsa:6,uds_total:7,pesos_total:8,dias_stock:9};
+const COL_IDX = {rubro:0,stock_col:1,stock_full:2,stock_total:3,uds_total:4,pesos_total:5,dias_stock:6};
 
 let diasPeriodo = 1;
 
@@ -409,6 +406,13 @@ function aplicar() {
   const desde   = document.getElementById('fDesde').value;
   const hasta   = document.getElementById('fHasta').value;
   const canales = [...document.querySelectorAll('.canal-checks input:checked')].map(i=>i.value);
+
+  // Actualizar título columna unidades según canal seleccionado
+  const thUds = document.getElementById('th-uds');
+  if (thUds) {
+    const label = canales.length === 1 ? 'Uds. Vendidas ' + canales[0] : 'Unidades Vendidas';
+    thUds.childNodes[0].textContent = label + ' ';
+  }
 
   // Calcular días del período
   const d1 = new Date(desde), d2 = new Date(hasta);
@@ -515,9 +519,6 @@ function render() {
   <td class="num"><div class="bar-wrap"><div class="bar bc" style="width:${wC}px"></div>${fmtSt(r.stock_col)}</div></td>
   <td class="num"><div class="bar-wrap"><div class="bar bf" style="width:${wF}px"></div>${fmtSt(r.stock_full)}</div></td>
   <td class="num bold">${fmtSt(r.stock_total)}</td>
-  <td class="num">${dash(r.uds_ml)}</td>
-  <td class="num">${dash(r.uds_bna)}</td>
-  <td class="num">${dash(r.uds_obsa)}</td>
   <td class="num bold"><div class="bar-wrap"><div class="bar bv" style="width:${wU}px"></div>${fmt(r.uds_total)}</div></td>
   <td class="num">${fmtP(r.pesos_total)}</td>
   <td class="num">${fmtDias(r.stock_total, r.uds_total)}</td>
@@ -526,7 +527,7 @@ ${isExp ? buildSkuRows(r) : ''}`;
   }).join('');
 }
 
-const SKU_COLS = ['sku','desc','col','full','total','uml','ubna','uobsa','uTotal','pTotal','diasStock'];
+const SKU_COLS = ['sku','desc','col','full','total','uTotal','pTotal','diasStock'];
 
 function buildSkuRows(r) {
   const skuStock = {};
@@ -565,10 +566,7 @@ function buildSkuRows(r) {
       <th onclick="sortSkuBy('col','${uid}')">Stock COL <span class="si"></span></th>
       <th onclick="sortSkuBy('full','${uid}')">Stock Full <span class="si"></span></th>
       <th onclick="sortSkuBy('total','${uid}')">Stock Total <span class="si"></span></th>
-      <th onclick="sortSkuBy('uml','${uid}')">Uds. ML <span class="si"></span></th>
-      <th onclick="sortSkuBy('ubna','${uid}')">Uds. BNA <span class="si"></span></th>
-      <th onclick="sortSkuBy('uobsa','${uid}')">Uds. OBSA <span class="si"></span></th>
-      <th onclick="sortSkuBy('uTotal','${uid}')">Uds. Total <span class="si"></span></th>
+      <th onclick="sortSkuBy('uTotal','${uid}')">Unidades Vendidas <span class="si"></span></th>
       <th onclick="sortSkuBy('pTotal','${uid}')">Facturacion <span class="si"></span></th>
       <th onclick="sortSkuBy('diasStock','${uid}')">Días Stock <span class="si"></span></th>
       <th>Cuotas (todos los canales)</th>
@@ -618,9 +616,6 @@ function renderSkuBody(uid) {
       <td class="num">${fmtSt(s.col)}</td>
       <td class="num">${fmtSt(s.full)}</td>
       <td class="num bold">${fmtSt(s.total)}</td>
-      <td class="num">${dash(s.uml)}</td>
-      <td class="num">${dash(s.ubna)}</td>
-      <td class="num">${dash(s.uobsa)}</td>
       <td class="num bold">${dash(s.uTotal)}</td>
       <td class="num">${s.pTotal>0?fmtP(s.pTotal):'<span style="color:#ccc">—</span>'}</td>
       <td class="num">${fmtDias(s.total, s.uTotal)}</td>
