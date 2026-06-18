@@ -227,10 +227,6 @@
             <div id="drpCal0"></div>
             <div id="drpCal1"></div>
           </div>
-          <div class="drp-foot">
-            <button class="drp-cancel" onclick="drpCancel()">Cancelar</button>
-            <button class="drp-apply" onclick="drpApply()">Aplicar</button>
-          </div>
         </div>
       </div>
     </div>
@@ -714,7 +710,7 @@ function drpPreset(p) {
   else return;
   drpFrom=f; drpTo=t; drpSelecting=false;
   document.querySelectorAll('.drp-pre').forEach(b=>b.classList.toggle('active', b.dataset.p===p));
-  drpRender();
+  drpApply();
 }
 function drpRender() {
   for (let m = 0; m < 2; m++) {
@@ -752,12 +748,12 @@ function drpClick(iso) {
   if (!drpSelecting || iso < drpFrom) {
     drpFrom=iso; drpTo=iso; drpSelecting=true;
     document.querySelectorAll('.drp-pre').forEach(b=>b.classList.toggle('active', b.dataset.p==='custom'));
-  } else { drpTo=iso; drpSelecting=false; }
-  drpRender();
+    drpRender();
+  } else { drpTo=iso; drpSelecting=false; drpApply(); }
 }
 document.addEventListener('click', e => {
   const w = document.getElementById('drpWrap');
-  if (w && !w.contains(e.target)) drpClose();
+  if (w && !e.composedPath().includes(w)) drpClose();
 });
 
 // Inicializar
