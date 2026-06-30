@@ -378,11 +378,7 @@ const COL_IDX = {rubro:0,stock_col:1,stock_full:2,uds_total:3,pesos_total:4,dias
 let diasPeriodo = 1;
 
 function fmt(n)   { return Math.round(n).toLocaleString('es-AR'); }
-function fmtP(n)  {
-  if(n>=1e9) return '$'+(n/1e9).toFixed(1)+'B';
-  if(n>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
-  return '$'+Math.round(n).toLocaleString('es-AR');
-}
+function fmtP(n)  { return '$'+Math.round(n).toLocaleString('es-AR'); }
 function dash(n)  { return n>0 ? fmt(n) : '<span style="color:#ccc">—</span>'; }
 function fmtSt(n) {
   const color = n === 0 ? '#ef4444' : '#16a34a';
