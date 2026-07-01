@@ -228,7 +228,7 @@ function buildTable(rows, show_full) {
     const fullTd = show_full ? `<td class="num ${sF}">${fmtN(r.stock_full)}</td>` : '';
     tbody += `<tr>
       <td class="num gray">${i+1}</td>
-      <td class="desc">${r.desc}</td>
+      <td class="desc">${r.desc}<br><span style="font-size:10px;color:#90a4ae">SKU: ${r.sku}</span></td>
       <td class="num">${fmtN(r.uds)}</td>
       <td class="num blue">${pU}%</td>
       <td class="num">${fmtM(r.monto)}</td>
