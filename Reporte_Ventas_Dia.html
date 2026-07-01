@@ -100,12 +100,13 @@ tfoot tr{background:#e8eaf6;font-weight:700}
   <!-- Presets período -->
   <span class="fl">Período</span>
   <div style="display:flex;gap:6px;flex-wrap:wrap">
-    <button class="btn-rng" data-rng="hoy"     onclick="setRng(this)">Hoy</button>
-    <button class="btn-rng" data-rng="ayer"    onclick="setRng(this)">Ayer</button>
-    <button class="btn-rng" data-rng="7d"      onclick="setRng(this)">Últimos 7 días</button>
-    <button class="btn-rng" data-rng="15d"     onclick="setRng(this)">Últimos 15 días</button>
-    <button class="btn-rng" data-rng="30d"     onclick="setRng(this)">Últimos 30 días</button>
-    <button class="btn-rng active" data-rng="mes" onclick="setRng(this)">Mes actual</button>
+    <button class="btn-rng" data-rng="hoy"      onclick="setRng(this)">Hoy</button>
+    <button class="btn-rng" data-rng="ayer"     onclick="setRng(this)">Ayer</button>
+    <button class="btn-rng" data-rng="7d"       onclick="setRng(this)">Últimos 7 días</button>
+    <button class="btn-rng" data-rng="15d"      onclick="setRng(this)">Últimos 15 días</button>
+    <button class="btn-rng" data-rng="30d"      onclick="setRng(this)">Últimos 30 días</button>
+    <button class="btn-rng active" data-rng="mes"     onclick="setRng(this)">Mes actual</button>
+    <button class="btn-rng" data-rng="mes_ant"  onclick="setRng(this)">Mes anterior</button>
   </div>
   <div class="date-inputs">
     <input type="date" id="inp-from" onchange="setCustom()">
@@ -161,7 +162,14 @@ function setRng(btn) {
   else if (rng==='7d')    { curFrom=addDays(t,-6); curTo=t; }
   else if (rng==='15d')   { curFrom=addDays(t,-14); curTo=t; }
   else if (rng==='30d')   { curFrom=addDays(t,-29); curTo=t; }
-  else if (rng==='mes')   { curFrom=monthStart(t); curTo=t; }
+  else if (rng==='mes')     { curFrom=monthStart(t); curTo=t; }
+  else if (rng==='mes_ant') {
+    const d=new Date(t+'T00:00:00');
+    d.setDate(0); // último día del mes anterior
+    const lastDay=d.toISOString().slice(0,10);
+    d.setDate(1); // primer día del mes anterior
+    curFrom=d.toISOString().slice(0,10); curTo=lastDay;
+  }
   document.getElementById('inp-from').value = curFrom;
   document.getElementById('inp-to').value   = curTo;
   render();
