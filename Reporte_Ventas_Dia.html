@@ -61,15 +61,22 @@ tfoot tr{background:#e8eaf6;font-weight:700}
 
 /* ── PRINT ── */
 @media print{
-  body{background:#fff;font-size:11px}
-  header{-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:10px 16px}
+  body{background:#fff;font-size:10px}
+  header{-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:8px 14px}
+  header h1{font-size:14px}
+  .btn-print{display:none}
   .controls{display:none !important}
-  .container{max-width:100%;padding:0 6px}
-  .kpi{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none;border:1px solid #e0e0e0}
-  .section{box-shadow:none;border:1px solid #e0e0e0;break-inside:avoid;margin-bottom:10px;padding:10px 12px}
+  .container{max-width:100%;padding:0 4px}
+  .kpi-row{grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+  .kpi{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none;border:1px solid #e0e0e0;padding:7px 10px}
+  .kpi-val{font-size:14px}
+  .section{box-shadow:none;border:1px solid #e0e0e0;margin-bottom:8px;padding:8px 10px}
+  .section-hdr{margin-bottom:6px;padding-bottom:5px}
   thead tr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   tfoot tr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .kpi-row{grid-template-columns:repeat(4,1fr)}
+  thead{display:table-header-group}
+  tfoot{display:table-footer-group}
+  tr{page-break-inside:avoid}
 }
 </style>
 </head>
