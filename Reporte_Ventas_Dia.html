@@ -271,12 +271,22 @@ function render() {
   const totU = totMl.u + totBna.u + totObsa.u;
   const totP = totMl.p + totBna.p + totObsa.p;
 
-  // KPIs
-  document.getElementById('kpi-row').innerHTML = `
-    <div class="kpi"><div class="kpi-lbl">Total</div><div class="kpi-val">${fmtM(totM)}</div><div class="kpi-sub">${fmtN(totU)} uds · ${fmtN(totP)} ped</div></div>
-    <div class="kpi ml"><div class="kpi-lbl">Mercado Libre</div><div class="kpi-val">${fmtM(totMl.m)}</div><div class="kpi-sub">${fmtN(totMl.u)} uds · ${fmtN(totMl.p)} ped</div></div>
-    <div class="kpi bna"><div class="kpi-lbl">Tienda BNA</div><div class="kpi-val">${fmtM(totBna.m)}</div><div class="kpi-sub">${fmtN(totBna.u)} uds · ${fmtN(totBna.p)} ped</div></div>
-    <div class="kpi obsa"><div class="kpi-lbl">OBSA Web</div><div class="kpi-val">${fmtM(totObsa.m)}</div><div class="kpi-sub">${fmtN(totObsa.u)} uds · ${fmtN(totObsa.p)} ped</div></div>`;
+  // KPIs — mostrar solo el canal seleccionado, o todos si es "all"
+  let kpiHtml = '';
+  if (curCanal === 'all') {
+    kpiHtml = `
+      <div class="kpi"><div class="kpi-lbl">Total</div><div class="kpi-val">${fmtM(totM)}</div><div class="kpi-sub">${fmtN(totU)} uds · ${fmtN(totP)} ped</div></div>
+      <div class="kpi ml"><div class="kpi-lbl">Mercado Libre</div><div class="kpi-val">${fmtM(totMl.m)}</div><div class="kpi-sub">${fmtN(totMl.u)} uds · ${fmtN(totMl.p)} ped</div></div>
+      <div class="kpi bna"><div class="kpi-lbl">Tienda BNA</div><div class="kpi-val">${fmtM(totBna.m)}</div><div class="kpi-sub">${fmtN(totBna.u)} uds · ${fmtN(totBna.p)} ped</div></div>
+      <div class="kpi obsa"><div class="kpi-lbl">OBSA Web</div><div class="kpi-val">${fmtM(totObsa.m)}</div><div class="kpi-sub">${fmtN(totObsa.u)} uds · ${fmtN(totObsa.p)} ped</div></div>`;
+  } else if (curCanal === 'ml') {
+    kpiHtml = `<div class="kpi ml"><div class="kpi-lbl">Mercado Libre</div><div class="kpi-val">${fmtM(totMl.m)}</div><div class="kpi-sub">${fmtN(totMl.u)} uds · ${fmtN(totMl.p)} ped</div></div>`;
+  } else if (curCanal === 'bna') {
+    kpiHtml = `<div class="kpi bna"><div class="kpi-lbl">Tienda BNA</div><div class="kpi-val">${fmtM(totBna.m)}</div><div class="kpi-sub">${fmtN(totBna.u)} uds · ${fmtN(totBna.p)} ped</div></div>`;
+  } else if (curCanal === 'obsa') {
+    kpiHtml = `<div class="kpi obsa"><div class="kpi-lbl">OBSA Web</div><div class="kpi-val">${fmtM(totObsa.m)}</div><div class="kpi-sub">${fmtN(totObsa.u)} uds · ${fmtN(totObsa.p)} ped</div></div>`;
+  }
+  document.getElementById('kpi-row').innerHTML = kpiHtml;
 
   // Badges
   document.getElementById('badge-ml').textContent   = fmtM(totMl.m)+' · '+fmtN(totMl.u)+' uds · '+fmtN(totMl.p)+' ped';
