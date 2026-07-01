@@ -36,7 +36,7 @@ input[type=date]{border:1px solid #c5cae9;border-radius:6px;padding:5px 8px;font
 .kpi-lbl{font-size:10px;color:#78909c;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 .kpi-val{font-size:20px;font-weight:700;color:#1a237e}
 .kpi-sub{font-size:11px;color:#90a4ae;margin-top:2px}
-.kpi-solo{max-width:320px;padding:16px 22px}
+.kpi-solo{max-width:320px;padding:16px 22px;margin-top:14px}
 .section{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:14px}
 .section[hidden]{display:none}
 .section-hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;border-bottom:2px solid #e0e0e0;cursor:pointer;user-select:none}
@@ -281,11 +281,11 @@ function render() {
       <div class="kpi bna"><div class="kpi-lbl">Tienda BNA</div><div class="kpi-val">${fmtM(totBna.m)}</div><div class="kpi-sub">${fmtN(totBna.u)} uds · ${fmtN(totBna.p)} ped</div></div>
       <div class="kpi obsa"><div class="kpi-lbl">OBSA Web</div><div class="kpi-val">${fmtM(totObsa.m)}</div><div class="kpi-sub">${fmtN(totObsa.u)} uds · ${fmtN(totObsa.p)} ped</div></div>`;
   } else if (curCanal === 'ml') {
-    kpiHtml = `<div class="kpi kpi-solo" style="background:#1565c0;border-color:#1565c0"><div class="kpi-lbl" style="color:rgba(255,255,255,.75)">Mercado Libre</div><div class="kpi-val" style="color:#fff;font-size:28px">${fmtM(totMl.m)}</div><div class="kpi-sub" style="color:rgba(255,255,255,.8)">${fmtN(totMl.u)} uds · ${fmtN(totMl.p)} ped</div></div>`;
+    kpiHtml = `<div class="kpi kpi-solo" style="background:#1565c0;border-color:#1565c0"><div class="kpi-lbl" style="color:rgba(255,255,255,.85);font-weight:800">Mercado Libre</div><div class="kpi-val" style="color:#fff;font-size:28px">${fmtM(totMl.m)}</div><div class="kpi-sub" style="color:rgba(255,255,255,.9);font-weight:700">${fmtN(totMl.u)} uds · ${fmtN(totMl.p)} ped</div></div>`;
   } else if (curCanal === 'bna') {
-    kpiHtml = `<div class="kpi kpi-solo" style="background:#c62828;border-color:#c62828"><div class="kpi-lbl" style="color:rgba(255,255,255,.75)">Tienda BNA</div><div class="kpi-val" style="color:#fff;font-size:28px">${fmtM(totBna.m)}</div><div class="kpi-sub" style="color:rgba(255,255,255,.8)">${fmtN(totBna.u)} uds · ${fmtN(totBna.p)} ped</div></div>`;
+    kpiHtml = `<div class="kpi kpi-solo" style="background:#c62828;border-color:#c62828"><div class="kpi-lbl" style="color:rgba(255,255,255,.85);font-weight:800">Tienda BNA</div><div class="kpi-val" style="color:#fff;font-size:28px">${fmtM(totBna.m)}</div><div class="kpi-sub" style="color:rgba(255,255,255,.9);font-weight:700">${fmtN(totBna.u)} uds · ${fmtN(totBna.p)} ped</div></div>`;
   } else if (curCanal === 'obsa') {
-    kpiHtml = `<div class="kpi kpi-solo" style="background:#e65100;border-color:#e65100"><div class="kpi-lbl" style="color:rgba(255,255,255,.75)">OBSA Web</div><div class="kpi-val" style="color:#fff;font-size:28px">${fmtM(totObsa.m)}</div><div class="kpi-sub" style="color:rgba(255,255,255,.8)">${fmtN(totObsa.u)} uds · ${fmtN(totObsa.p)} ped</div></div>`;
+    kpiHtml = `<div class="kpi kpi-solo" style="background:#e65100;border-color:#e65100"><div class="kpi-lbl" style="color:rgba(255,255,255,.85);font-weight:800">OBSA Web</div><div class="kpi-val" style="color:#fff;font-size:28px">${fmtM(totObsa.m)}</div><div class="kpi-sub" style="color:rgba(255,255,255,.9);font-weight:700">${fmtN(totObsa.u)} uds · ${fmtN(totObsa.p)} ped</div></div>`;
   }
   document.getElementById('kpi-row').innerHTML = kpiHtml;
 
