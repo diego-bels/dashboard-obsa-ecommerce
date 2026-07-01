@@ -1,0 +1,12 @@
+{
+  "2026-06": {
+    "ml":   { "facturacion": 420000000, "pedidos": 2000 },
+    "bna":  { "facturacion": 50000000 },
+    "obsa": { "facturacion": 200000000, "pedidos": 500 }
+  },
+  "2026-07": {
+    "ml":   { "facturacion": 550000000, "pedidos": 1300 },
+    "bna":  { "facturacion": 50000000 },
+    "obsa": { "facturacion": 200000000, "pedidos": 500 }
+  }
+}
