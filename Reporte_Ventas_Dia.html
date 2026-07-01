@@ -142,12 +142,11 @@ const MESES3 = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','
 let curFrom = '', curTo = '', curCanal = 'all';
 
 // ── Date helpers ──
-function today() {
-  const d=new Date();
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
+const TODAY_PY = '2026-07-01';  // inyectado por Python al generar
+function today() { return TODAY_PY; }
 function addDays(d, n) {
-  const dt = new Date(d+'T00:00:00'); dt.setDate(dt.getDate()+n); return dt.toISOString().slice(0,10);
+  const dt = new Date(d+'T00:00:00'); dt.setDate(dt.getDate()+n);
+  return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
 }
 function monthStart(d) { return d.slice(0,7)+'-01'; }
 function fmtLabel(d) {
@@ -169,9 +168,9 @@ function setRng(btn) {
   else if (rng==='mes_ant') {
     const d=new Date(t+'T00:00:00');
     d.setDate(0); // último día del mes anterior
-    const lastDay=d.toISOString().slice(0,10);
+    const lastDay=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
     d.setDate(1); // primer día del mes anterior
-    curFrom=d.toISOString().slice(0,10); curTo=lastDay;
+    curFrom=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); curTo=lastDay;
   }
   document.getElementById('inp-from').value = curFrom;
   document.getElementById('inp-to').value   = curTo;
