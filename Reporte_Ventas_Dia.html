@@ -60,8 +60,10 @@ tfoot tr{background:#e8eaf6;font-weight:700}
 .desc{max-width:500px}
 .gray{color:#90a4ae}
 .blue{color:#1565c0}
+.bold{font-weight:700}
 .red{color:#c62828;font-weight:700}
 .orange{color:#e65100;font-weight:700}
+.green{color:#2e7d32;font-weight:700}
 .no-data{color:#90a4ae;font-style:italic;padding:16px 0}
 
 /* ── PRINT ── */
@@ -224,18 +226,18 @@ function buildTable(rows, show_full) {
     const ticket = r.ped > 0 ? r.monto/r.ped : 0;
     const pU = tot_uds   > 0 ? (r.uds/tot_uds*100).toFixed(1)   : '0.0';
     const pM = tot_monto > 0 ? (r.monto/tot_monto*100).toFixed(1) : '0.0';
-    const sC = r.stock===0?'red':r.stock<5?'orange':'';
-    const sF = r.stock_full===0?'red':r.stock_full<5?'orange':'';
-    const fullTd = show_full ? `<td class="num ${sF}">${fmtN(r.stock_full)}</td>` : '';
+    const sC = r.stock===0?'red':r.stock<5?'orange':'green';
+    const sF = r.stock_full===0?'red':r.stock_full<5?'orange':'green';
+    const fullTd = show_full ? `<td class="num ${sF} bold">${fmtN(r.stock_full)}</td>` : '';
     tbody += `<tr>
       <td class="num gray">${i+1}</td>
       <td class="desc">${r.desc}<br><span style="font-size:10px;color:#90a4ae">SKU: ${r.sku}</span></td>
-      <td class="num">${fmtN(r.uds)}</td>
+      <td class="num bold">${fmtN(r.uds)}</td>
       <td class="num blue">${pU}%</td>
-      <td class="num">${fmtM(r.monto)}</td>
+      <td class="num bold">${fmtM(r.monto)}</td>
       <td class="num blue">${pM}%</td>
-      <td class="num">${fmtM(ticket)}</td>
-      <td class="num ${sC}">${fmtN(r.stock)}</td>
+      <td class="num bold">${fmtM(ticket)}</td>
+      <td class="num ${sC} bold">${fmtN(r.stock)}</td>
       ${fullTd}
     </tr>`;
   });
