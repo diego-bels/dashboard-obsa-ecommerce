@@ -38,8 +38,12 @@ input[type=date]{border:1px solid #c5cae9;border-radius:6px;padding:5px 8px;font
 .kpi-sub{font-size:11px;color:#90a4ae;margin-top:2px}
 .section{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:14px}
 .section[hidden]{display:none}
-.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e0e0e0}
-.section-hdr h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#455a64}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;border-bottom:2px solid #e0e0e0;cursor:pointer;user-select:none}
+.section-hdr h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#455a64;display:flex;align-items:center;gap:8px}
+.section-hdr h2 .chevron{font-size:14px;color:#90a4ae;transition:transform .2s}
+.section.collapsed .section-hdr h2 .chevron{transform:rotate(-90deg)}
+.section-body{margin-top:12px}
+.section.collapsed .section-body{display:none}
 .badge{font-size:11px;font-weight:700;color:#fff;padding:2px 10px;border-radius:10px}
 .ml-badge{background:#1565c0}.bna-badge{background:#c62828}.obsa-badge{background:#e65100}
 
@@ -120,9 +124,9 @@ tfoot tr{background:#e8eaf6;font-weight:700}
 
 <div class="container">
   <div class="kpi-row" id="kpi-row"></div>
-  <div id="sec-ml"   class="section"><div class="section-hdr"><h2>Mercado Libre</h2><span class="badge ml-badge"  id="badge-ml"></span></div><div id="tbl-ml"></div></div>
-  <div id="sec-bna"  class="section"><div class="section-hdr"><h2>Tienda BNA</h2>   <span class="badge bna-badge" id="badge-bna"></span></div><div id="tbl-bna"></div></div>
-  <div id="sec-obsa" class="section"><div class="section-hdr"><h2>OBSA Web</h2>     <span class="badge obsa-badge"id="badge-obsa"></span></div><div id="tbl-obsa"></div></div>
+  <div id="sec-ml"   class="section"><div class="section-hdr" onclick="toggleSec('sec-ml')"><h2><span class="chevron">▾</span>Mercado Libre</h2><span class="badge ml-badge"  id="badge-ml"></span></div><div class="section-body" id="tbl-ml"></div></div>
+  <div id="sec-bna"  class="section"><div class="section-hdr" onclick="toggleSec('sec-bna')"><h2><span class="chevron">▾</span>Tienda BNA</h2>   <span class="badge bna-badge" id="badge-bna"></span></div><div class="section-body" id="tbl-bna"></div></div>
+  <div id="sec-obsa" class="section"><div class="section-hdr" onclick="toggleSec('sec-obsa')"><h2><span class="chevron">▾</span>OBSA Web</h2>    <span class="badge obsa-badge"id="badge-obsa"></span></div><div class="section-body" id="tbl-obsa"></div></div>
 </div>
 
 <script>
@@ -134,7 +138,7 @@ const MESES3 = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','
 let curFrom = '', curTo = '', curCanal = 'all';
 
 // ── Date helpers ──
-function today()  { return DATES[DATES.length-1] || new Date().toISOString().slice(0,10); }
+function today()  { return new Date().toISOString().slice(0,10); }
 function addDays(d, n) {
   const dt = new Date(d+'T00:00:00'); dt.setDate(dt.getDate()+n); return dt.toISOString().slice(0,10);
 }
@@ -179,6 +183,10 @@ function updateCanalVisibility() {
     const sec = document.getElementById('sec-'+c);
     sec.hidden = (curCanal !== 'all' && curCanal !== c);
   });
+}
+
+function toggleSec(id) {
+  document.getElementById(id).classList.toggle('collapsed');
 }
 
 // ── Aggregate rows across date range ──
