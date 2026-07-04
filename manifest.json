@@ -1,9 +1,9 @@
-{
+﻿{
   "name": "OBSA Dashboard Ecommerce",
   "short_name": "OBSA Dashboard",
-  "description": "Panel de gestión de ventas y stock para Oscar Barbieri SA",
-  "start_url": "/dashboard-obsa/",
-  "scope": "/dashboard-obsa/",
+  "description": "Panel de gestiÃ³n de ventas y stock para Oscar Barbieri SA",
+  "start_url": "/dashboard-obsa-ecommerce/",
+  "scope": "/dashboard-obsa-ecommerce/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#1a237e",
