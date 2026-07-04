@@ -1,12 +1,12 @@
-const CACHE = 'obsa-v1';
+﻿const CACHE = 'obsa-v1';
 const ASSETS = [
-  '/dashboard-obsa/',
-  '/dashboard-obsa/index.html',
-  '/dashboard-obsa/Dashboard_Ecommerce.html',
-  '/dashboard-obsa/Reporte_Stock_Ventas.html',
-  '/dashboard-obsa/manifest.json',
-  '/dashboard-obsa/icons/icon-192.png',
-  '/dashboard-obsa/icons/icon-512.png'
+  '/dashboard-obsa-ecommerce/',
+  '/dashboard-obsa-ecommerce/index.html',
+  '/dashboard-obsa-ecommerce/Dashboard_Ecommerce.html',
+  '/dashboard-obsa-ecommerce/Reporte_Stock_Ventas.html',
+  '/dashboard-obsa-ecommerce/manifest.json',
+  '/dashboard-obsa-ecommerce/icons/icon-192.png',
+  '/dashboard-obsa-ecommerce/icons/icon-512.png'
 ];
 
 self.addEventListener('install', e => {
