@@ -337,6 +337,20 @@ function fmtP(n) {
   return '<span class="pct-badge ' + cls + '">' + sign + n.toFixed(1) + '%</span>';
 }
 function fmtF(f) { return f ? f.split('-').reverse().join('/') : '—'; }
+// Compatibilidad con registros viejos que no tienen pct_c / pct_p
+function getPctC(r) {
+  if (r.pct_c != null) return r.pct_c;
+  if (r.c_ant != null && r.c_nue != null && Math.abs(r.c_ant) > 0.01)
+    return Math.round((r.c_nue - r.c_ant) / r.c_ant * 1000) / 10;
+  if (r.pct != null && r.c_ant != null) return r.pct;
+  return null;
+}
+function getPctP(r) {
+  if (r.pct_p != null) return r.pct_p;
+  if (r.p_ant != null && r.p_nue != null && Math.abs(r.p_ant) > 0.01)
+    return Math.round((r.p_nue - r.p_ant) / r.p_ant * 1000) / 10;
+  return null;
+}
 
 // ── Filtro cascada Familia → Rubro ────────────────────────────────────────────
 function onFamChange(tab) {
@@ -401,10 +415,10 @@ function renderHoy() {
     '<td>' + r.marca + '</td>' +
     '<td class="num">' + dash(r.c_ant) + '</td>' +
     '<td class="num bold">' + dash(r.c_nue) + '</td>' +
-    '<td class="num">' + fmtP(r.pct_c) + '</td>' +
+    '<td class="num">' + fmtP(getPctC(r)) + '</td>' +
     '<td class="num">' + dash(r.p_ant) + '</td>' +
     '<td class="num bold">' + dash(r.p_nue) + '</td>' +
-    '<td class="num">' + fmtP(r.pct_p) + '</td>' +
+    '<td class="num">' + fmtP(getPctP(r)) + '</td>' +
     '<td class="num">' + (r.ult != null ? fmt(r.ult) : '<span style="color:#ccc">—</span>') + '</td>' +
     '</tr>'
   ).join('');
@@ -474,10 +488,10 @@ function renderHist() {
     '<td>' + r.marca + '</td>' +
     '<td class="num">' + dash(r.c_ant) + '</td>' +
     '<td class="num bold">' + dash(r.c_nue) + '</td>' +
-    '<td class="num">' + fmtP(r.pct_c) + '</td>' +
+    '<td class="num">' + fmtP(getPctC(r)) + '</td>' +
     '<td class="num">' + dash(r.p_ant) + '</td>' +
     '<td class="num bold">' + dash(r.p_nue) + '</td>' +
-    '<td class="num">' + fmtP(r.pct_p) + '</td>' +
+    '<td class="num">' + fmtP(getPctP(r)) + '</td>' +
     '</tr>'
   ).join('');
 }
