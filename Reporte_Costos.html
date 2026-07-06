@@ -28,12 +28,15 @@ header p  { font-size: 0.8rem; opacity: 0.7; margin-top: 3px; }
 }
 .tab {
   padding: 12px 22px; font-size: 0.85rem; font-weight: 600;
-  border: none; background: none; cursor: pointer; color: #666;
+  border: none; background: none; cursor: pointer; color: #888;
   border-bottom: 3px solid transparent; margin-bottom: -2px;
-  transition: all 0.15s;
+  transition: all 0.15s; white-space: nowrap;
 }
-.tab:hover { color: #0f3460; }
-.tab.active { color: #0f3460; border-bottom-color: #0f3460; }
+.tab:hover { color: #0f3460; background: #f5f7ff; }
+.tab.active {
+  color: white; background: #0f3460;
+  border-bottom-color: #0f3460; border-radius: 6px 6px 0 0;
+}
 .tab-badge {
   display: inline-block; background: #ef4444; color: white;
   border-radius: 10px; font-size: 0.65rem; padding: 1px 6px;
@@ -151,7 +154,7 @@ td.bold { font-weight: 700; }
 <div class="tabs">
   <button class="tab active" onclick="showTab('hoy')">
     Cambios de Hoy
-    <span class="tab-badge " id="badgeHoy">10</span>
+    <span class="tab-badge green" id="badgeHoy">0</span>
   </button>
   <button class="tab" onclick="showTab('hist')">
     Historial (90 días)
@@ -165,17 +168,17 @@ td.bold { font-weight: 700; }
   <div class="summary">
     <div class="card c-blue">
       <div class="c-lbl">Cambios hoy</div>
-      <div class="c-val">10</div>
+      <div class="c-val">0</div>
       <div class="c-sub">productos modificados</div>
     </div>
     <div class="card c-red">
       <div class="c-lbl">Subas</div>
-      <div class="c-val">2</div>
+      <div class="c-val">0</div>
       <div class="c-sub">costo aumentó</div>
     </div>
     <div class="card c-green">
       <div class="c-lbl">Bajas</div>
-      <div class="c-val">8</div>
+      <div class="c-val">0</div>
       <div class="c-sub">costo bajó</div>
     </div>
   </div>
@@ -183,22 +186,35 @@ td.bold { font-weight: 700; }
   <div class="filters" id="filtersHoy">
     <div class="fg">
       <label>Buscar</label>
-      <input type="text" id="qHoy" placeholder="SKU o descripción..." oninput="renderHoy()" style="width:220px">
+      <input type="text" id="qHoy" placeholder="Código o descripción..." oninput="renderHoy()" style="width:200px">
     </div>
     <div class="fg">
       <label>Familia</label>
-      <select id="famHoy" onchange="renderHoy()"><option value="">Todas</option></select>
+      <select id="famHoy" onchange="onFamChange('Hoy')"><option value="">Todas</option></select>
     </div>
     <div class="fg">
       <label>Rubro</label>
       <select id="rubHoy" onchange="renderHoy()"><option value="">Todos</option></select>
     </div>
     <div class="fg">
+      <label>Marca</label>
+      <select id="marcaHoy" onchange="renderHoy()"><option value="">Todas</option></select>
+    </div>
+    <div class="fg">
+      <label>Tipo</label>
+      <select id="tipoHoy" onchange="renderHoy()">
+        <option value="">Todos</option>
+        <option value="C">Solo costo</option>
+        <option value="P">Solo precio</option>
+        <option value="CP">Costo y precio</option>
+      </select>
+    </div>
+    <div class="fg">
       <label>Variación</label>
       <select id="dirHoy" onchange="renderHoy()">
         <option value="">Todas</option>
-        <option value="up">Solo subas</option>
-        <option value="down">Solo bajas</option>
+        <option value="up">Subas</option>
+        <option value="down">Bajas</option>
       </select>
     </div>
     <div class="fg" style="justify-content:flex-end">
@@ -210,14 +226,17 @@ td.bold { font-weight: 700; }
   <div class="table-wrap">
     <table id="tHoy">
       <thead><tr>
-        <th style="width:90px" onclick="sortHoy('sku')">Código <span class="si"></span></th>
+        <th style="width:88px"  onclick="sortHoy('sku')">Código <span class="si"></span></th>
         <th onclick="sortHoy('desc')">Descripción <span class="si"></span></th>
         <th onclick="sortHoy('rubro')">Rubro <span class="si"></span></th>
         <th onclick="sortHoy('marca')">Marca <span class="si"></span></th>
-        <th class="num" style="width:130px" onclick="sortHoy('c_ant')">Costo Ant. <span class="si"></span></th>
-        <th class="num" style="width:130px" onclick="sortHoy('c_nue')">Costo Nuevo <span class="si"></span></th>
-        <th class="num" style="width:90px" onclick="sortHoy('pct')">Variación <span class="si"></span></th>
-        <th class="num" style="width:120px" onclick="sortHoy('ult')">Ult. Compra <span class="si"></span></th>
+        <th class="num" style="width:116px" onclick="sortHoy('c_ant')">Costo Ant. <span class="si"></span></th>
+        <th class="num" style="width:116px" onclick="sortHoy('c_nue')">Costo Nuevo <span class="si"></span></th>
+        <th class="num" style="width:78px"  onclick="sortHoy('pct_c')">Var. C <span class="si"></span></th>
+        <th class="num" style="width:116px" onclick="sortHoy('p_ant')">Precio Ant. <span class="si"></span></th>
+        <th class="num" style="width:116px" onclick="sortHoy('p_nue')">Precio Nuevo <span class="si"></span></th>
+        <th class="num" style="width:78px"  onclick="sortHoy('pct_p')">Var. P <span class="si"></span></th>
+        <th class="num" style="width:108px" onclick="sortHoy('ult')">Ult. Compra <span class="si"></span></th>
       </tr></thead>
       <tbody id="bodyHoy"></tbody>
     </table>
@@ -230,7 +249,7 @@ td.bold { font-weight: 700; }
   <div class="filters">
     <div class="fg">
       <label>Buscar</label>
-      <input type="text" id="qHist" placeholder="SKU o descripción..." oninput="renderHist()" style="width:220px">
+      <input type="text" id="qHist" placeholder="Código o descripción..." oninput="renderHist()" style="width:200px">
     </div>
     <div class="fg">
       <label>Fecha</label>
@@ -238,18 +257,31 @@ td.bold { font-weight: 700; }
     </div>
     <div class="fg">
       <label>Familia</label>
-      <select id="famHist" onchange="renderHist()"><option value="">Todas</option></select>
+      <select id="famHist" onchange="onFamChange('Hist')"><option value="">Todas</option></select>
     </div>
     <div class="fg">
       <label>Rubro</label>
       <select id="rubHist" onchange="renderHist()"><option value="">Todos</option></select>
     </div>
     <div class="fg">
+      <label>Marca</label>
+      <select id="marcaHist" onchange="renderHist()"><option value="">Todas</option></select>
+    </div>
+    <div class="fg">
+      <label>Tipo</label>
+      <select id="tipoHist" onchange="renderHist()">
+        <option value="">Todos</option>
+        <option value="C">Solo costo</option>
+        <option value="P">Solo precio</option>
+        <option value="CP">Costo y precio</option>
+      </select>
+    </div>
+    <div class="fg">
       <label>Variación</label>
       <select id="dirHist" onchange="renderHist()">
         <option value="">Todas</option>
-        <option value="up">Solo subas</option>
-        <option value="down">Solo bajas</option>
+        <option value="up">Subas</option>
+        <option value="down">Bajas</option>
       </select>
     </div>
     <div class="fg" style="justify-content:flex-end">
@@ -261,14 +293,17 @@ td.bold { font-weight: 700; }
   <div class="table-wrap">
     <table id="tHist">
       <thead><tr>
-        <th style="width:90px" onclick="sortHist('fecha')">Fecha <span class="si"></span></th>
-        <th style="width:90px" onclick="sortHist('sku')">Código <span class="si"></span></th>
+        <th style="width:80px"  onclick="sortHist('fecha')">Fecha <span class="si"></span></th>
+        <th style="width:88px"  onclick="sortHist('sku')">Código <span class="si"></span></th>
         <th onclick="sortHist('desc')">Descripción <span class="si"></span></th>
         <th onclick="sortHist('rubro')">Rubro <span class="si"></span></th>
         <th onclick="sortHist('marca')">Marca <span class="si"></span></th>
-        <th class="num" style="width:130px" onclick="sortHist('c_ant')">Costo Ant. <span class="si"></span></th>
-        <th class="num" style="width:130px" onclick="sortHist('c_nue')">Costo Nuevo <span class="si"></span></th>
-        <th class="num" style="width:90px" onclick="sortHist('pct')">Variación <span class="si"></span></th>
+        <th class="num" style="width:116px" onclick="sortHist('c_ant')">Costo Ant. <span class="si"></span></th>
+        <th class="num" style="width:116px" onclick="sortHist('c_nue')">Costo Nuevo <span class="si"></span></th>
+        <th class="num" style="width:78px"  onclick="sortHist('pct_c')">Var. C <span class="si"></span></th>
+        <th class="num" style="width:116px" onclick="sortHist('p_ant')">Precio Ant. <span class="si"></span></th>
+        <th class="num" style="width:116px" onclick="sortHist('p_nue')">Precio Nuevo <span class="si"></span></th>
+        <th class="num" style="width:78px"  onclick="sortHist('pct_p')">Var. P <span class="si"></span></th>
       </tr></thead>
       <tbody id="bodyHist"></tbody>
     </table>
@@ -276,11 +311,13 @@ td.bold { font-weight: 700; }
 </div>
 
 <script>
-const HOY      = [{"fecha": "2026-07-06", "sku": "117216", "desc": "JGO. SABANA LE BLANK  DIAMANTE 11/2 GRIS", "marca": "TEKA", "familia": "BLANCO", "rubro": "SABANAS", "c_ant": 2294.25, "c_nue": 25159.11, "pct": 996.6, "ult": 25159.11}, {"fecha": "2026-07-06", "sku": "4834", "desc": "PLACARD RICCHEZZE TANA 5P/2C 182X142X47 MOG 7740 (", "marca": "RICHEZE", "familia": "MUEBLES", "rubro": "PLACARD", "c_ant": 38234.71, "c_nue": 112377.38, "pct": 193.9, "ult": 2182.55}, {"fecha": "2026-07-06", "sku": "47195", "desc": "ALMOHADA SUAVESTAR FIBRA  70X40", "marca": "SUAVESTAR", "familia": "COLCHONES Y SOMMIERS", "rubro": "ALMOHADA", "c_ant": 274188.67, "c_nue": 8417.99, "pct": -96.9, "ult": 2608.76}, {"fecha": "2026-07-06", "sku": "1501", "desc": "PLATO TSUJI PLAYO 25 CM (45020)", "marca": "TSUJI", "familia": "BAZAR", "rubro": "PLATO", "c_ant": 180338.4, "c_nue": 6785.3, "pct": -96.2, "ult": 6785.3}, {"fecha": "2026-07-06", "sku": "43514", "desc": "BAJO MESADA ORLANDI 433 0.80 2P BLANCO SOFT(L)", "marca": "ORLANDI", "familia": "MUEBLES", "rubro": "JUEGO COCINA", "c_ant": 121907.41, "c_nue": 7166.4, "pct": -94.1, "ult": 7166.4}, {"fecha": "2026-07-06", "sku": "47197", "desc": "ALMOHADA SUAVESTAR FIBRA  90X40", "marca": "SUAVESTAR", "familia": "COLCHONES Y SOMMIERS", "rubro": "ALMOHADA", "c_ant": 111662.8, "c_nue": 9129.47, "pct": -91.8, "ult": 1440.75}, {"fecha": "2026-07-06", "sku": "33165", "desc": "ASPIRADORA ULTRACOMB AS-4224 S/BOLSA 1800W", "marca": "ULTRACOMB", "familia": "PEQUEÑOS ELECTRODOMESTICOS", "rubro": "ASPIRADORA", "c_ant": 386937.84, "c_nue": 75366.61, "pct": -80.5, "ult": 66280.47}, {"fecha": "2026-07-06", "sku": "34764", "desc": "CEPILLO GAMA 124868 INNOVA HOT BRUSH MINI", "marca": "GAMA", "familia": "PEQUEÑOS ELECTRODOMESTICOS", "rubro": "SECADOR", "c_ant": 128345.17, "c_nue": 28234.48, "pct": -78.0, "ult": 26677.11}, {"fecha": "2026-07-06", "sku": "37469", "desc": "BICICLETA ROD.16 HALLEY 19057 PLAYERA NENA", "marca": "HALLEY", "familia": "RODADOS", "rubro": "BICICLETA", "c_ant": 456730.91, "c_nue": 165129.46, "pct": -63.8, "ult": 120659.22}, {"fecha": "2026-07-06", "sku": "46124", "desc": "DIVAN CAMA CRAVERO 20320 QUALITY 0,80 TAB CON CARR", "marca": "CRAVERO DORMITO", "familia": "MUEBLES", "rubro": "CAMA", "c_ant": 288780.86, "c_nue": 179071.89, "pct": -38.0, "ult": 11889.18}];
+const HOY      = [];
 const HIST     = [{"fecha": "2026-07-06", "sku": "80850949", "desc": "VENT.DE TECHO SEVERBON VTA420TP BCO 1.2M (30131)", "marca": "SEVERBON", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 96956.53, "c_nue": 98652.73, "pct": 1.7, "ult": 96956.53}, {"fecha": "2026-07-06", "sku": "80823130", "desc": "VENT.DE TECHO SEVERBON VTA420 A.INOX 1.2M LUZ LED", "marca": "SEVERBON", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 122892.53, "c_nue": 126024.28, "pct": 2.5, "ult": 122892.54}, {"fecha": "2026-07-06", "sku": "80805227", "desc": "COCINA FLORENCIA 5538F 56CM C/EE EASY CLEAN A.INOX", "marca": "FLORENCIA", "familia": "HOGAR", "rubro": "COCINA", "c_ant": 402093.92, "c_nue": 414190.22, "pct": 3.0, "ult": 402093.91}, {"fecha": "2026-07-06", "sku": "80826119", "desc": "COCINA FLORENCIA 5537F 56CM C/EE EASY CLEAN NEGRA", "marca": "FLORENCIA", "familia": "HOGAR", "rubro": "COCINA", "c_ant": 337940.34, "c_nue": 348092.59, "pct": 3.0, "ult": 331352.17}, {"fecha": "2026-07-06", "sku": "80837443", "desc": "TERMOTANQUE ESKABE H700 40L A.RECUP.700L/H MG", "marca": "ESKABE", "familia": "HOGAR", "rubro": "TERMOTANQUE", "c_ant": 655564.26, "c_nue": 675231.57, "pct": 3.0, "ult": 623929.25}, {"fecha": "2026-07-06", "sku": "80837444", "desc": "TERMOTANQUE ESKABE H800 52L A.RECUP.800L/H MG", "marca": "ESKABE", "familia": "HOGAR", "rubro": "TERMOTANQUE", "c_ant": 694561.9, "c_nue": 715398.74, "pct": 3.0, "ult": 694561.9}, {"fecha": "2026-07-06", "sku": "80837445", "desc": "TERMOTANQUE ESKABE H1100 76L A.RECUP.1100L/H MG", "marca": "ESKABE", "familia": "HOGAR", "rubro": "TERMOTANQUE", "c_ant": 942653.22, "c_nue": 970932.84, "pct": 3.0, "ult": 942653.22}, {"fecha": "2026-07-06", "sku": "80845018", "desc": "TERMOTANQUE ESKABE H360_x000D_\n 40L A.RECUP 360L/H MG", "marca": "ESKABE", "familia": "HOGAR", "rubro": "TERMOTANQUE", "c_ant": 493207.51, "c_nue": 508004.09, "pct": 3.0, "ult": 455735.79}, {"fecha": "2026-07-06", "sku": "533314", "desc": "COCINA FLORENCIA 5517F 56CM HORNO EASY CLEAN NEGRO", "marca": "FLORENCIA", "familia": "HOGAR", "rubro": "COCINA", "c_ant": 285775.05, "c_nue": 297223.33, "pct": 4.0, "ult": 264282.51}, {"fecha": "2026-07-06", "sku": "80804261", "desc": "COCINA FLORENCIA 5516F 56CM HORNO EASY CLEAN BLANC", "marca": "FLORENCIA", "familia": "HOGAR", "rubro": "COCINA", "c_ant": 291391.19, "c_nue": 303055.48, "pct": 4.0, "ult": 269466.65}, {"fecha": "2026-07-06", "sku": "80804262", "desc": "COCINA FLORENCIA 5518F 56CM HORNO EASY CLEAN A.INO", "marca": "FLORENCIA", "familia": "HOGAR", "rubro": "COCINA", "c_ant": 316987.82, "c_nue": 329624.13, "pct": 4.0, "ult": 316987.81}, {"fecha": "2026-07-06", "sku": "80842858", "desc": "LED 70'PHILIPS 70PUD7908/77_x000D_ UHD\n C/GOOGLE TV", "marca": "PHILIPS", "familia": "T.V. / DVD", "rubro": "LED", "c_ant": 1100000.0, "c_nue": 1056000.0, "pct": -4.0, "ult": 1008000.0}, {"fecha": "2026-07-06", "sku": "80851049", "desc": "COCINA FLORENCIA 5848S SEMI IND.56CM A.INOX", "marca": "FLORENCIA", "familia": "HOGAR", "rubro": "COCINA", "c_ant": 425689.38, "c_nue": 442752.46, "pct": 4.0, "ult": 409316.71}, {"fecha": "2026-07-06", "sku": "80855133", "desc": "LED 43'PHILIPS 43PUD7408/77 SMART FHD GOOGLE TV", "marca": "PHILIPS", "familia": "T.V. / DVD", "rubro": "LED", "c_ant": 375000.0, "c_nue": 360000.0, "pct": -4.0, "ult": 360000.0}, {"fecha": "2026-07-06", "sku": "80801198", "desc": "HORNO FLORENCIA FLOR7857F ELECT. MECANICO", "marca": "FLORENCIA", "familia": "HOGAR", "rubro": "HORNO", "c_ant": 312343.7, "c_nue": 325088.02, "pct": 4.1, "ult": 299531.3}, {"fecha": "2026-07-06", "sku": "20671", "desc": "MESA DE LUZ GENOUD L.CONTEMP. 2C NOGAL (L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA DE LUZ", "c_ant": 240453.83, "c_nue": 254881.06, "pct": 6.0, "ult": 11866.74}, {"fecha": "2026-07-06", "sku": "20672", "desc": "COMODA GENOUD CONTEMPORANEA 4C NOGAL(L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "COMODA", "c_ant": 505765.63, "c_nue": 536111.56, "pct": 6.0, "ult": 33481.79}, {"fecha": "2026-07-06", "sku": "23042", "desc": "SILLA GENOUD ANA NOGAL TAP.JACK.LINO ARENA (L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 131264.74, "c_nue": 139139.73, "pct": 6.0, "ult": 4371.54}, {"fecha": "2026-07-06", "sku": "23823", "desc": "SILLA GENOUD ANA NOGAL TAP.EN CUERINA (L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 131264.74, "c_nue": 139139.73, "pct": 6.0, "ult": 4530.4}, {"fecha": "2026-07-06", "sku": "37431", "desc": "RACK TV GENOUD CONTEMPORANEO 1.55X0.45X0.62 NOGAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "RACK", "c_ant": 611565.96, "c_nue": 648260.41, "pct": 6.0, "ult": 16267.0}, {"fecha": "2026-07-06", "sku": "44844", "desc": "SILLA GENOUD ANA NOGAL TELA JACK ESP.VIOLETA (L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 131264.74, "c_nue": 139139.73, "pct": 6.0, "ult": 1626.72}, {"fecha": "2026-07-06", "sku": "45624", "desc": "RESPALDO GENOUD P/SOMMIER 2.60M NOGAL CONTM.(L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "CAMA", "c_ant": 327058.38, "c_nue": 346681.88, "pct": 6.0, "ult": 4178.95}, {"fecha": "2026-07-06", "sku": "5119700", "desc": "FUTTON GENOUD PORTLAND ROBLE 1.90X1,38 C/COLCHON E", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "CAMA", "c_ant": 607060.7, "c_nue": 643484.34, "pct": 6.0, "ult": 59438.01}, {"fecha": "2026-07-06", "sku": "5119702", "desc": "CAMA MARINERA GENOUD C/CARRICAMA NOGAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "CAMA", "c_ant": 158325.98, "c_nue": 167825.53, "pct": 6.0, "ult": 4054.87}, {"fecha": "2026-07-06", "sku": "5119712", "desc": "MESA GENOUD CONTEMPORANEA EXT.1.60 A 2.20 NOGAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 650940.43, "c_nue": 689996.86, "pct": 6.0, "ult": 36325.16}, {"fecha": "2026-07-06", "sku": "5119713", "desc": "MESA GENOUD CONTEMPORANEA 140X140 NOGAL(L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 510606.29, "c_nue": 541242.67, "pct": 6.0, "ult": 28881.47}, {"fecha": "2026-07-06", "sku": "5119716", "desc": "BAHIUT GENOUD 1.55X0.45X0.90 C/HERR.MET. NOGAL(L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 854458.64, "c_nue": 905725.76, "pct": 6.0, "ult": 45569.37}, {"fecha": "2026-07-06", "sku": "5119717", "desc": "MODULAR GENOUD TORRE 6 CAJ.Y PTA. DE VIDRIO NOG (L", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 629049.85, "c_nue": 666793.34, "pct": 6.0, "ult": 35996.36}, {"fecha": "2026-07-06", "sku": "5119718", "desc": "MODULAR GENOUD TORRE 3 PTA.INF.MADE Y ESTAT.NOG(L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 530842.45, "c_nue": 562692.99, "pct": 6.0, "ult": 36794.6}, {"fecha": "2026-07-06", "sku": "5119720", "desc": "PERCHERO GENOUD OTOÑO NOGAL 180X051X051 (L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "PETIT MUEBLES", "c_ant": 129286.68, "c_nue": 137044.77, "pct": 6.0, "ult": 7501.14}, {"fecha": "2026-07-06", "sku": "5119730", "desc": "MESA GENOUD CENTRO REDONDA 080X040 L.VINTAGE ROB/B", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 136878.37, "c_nue": 145091.07, "pct": 6.0, "ult": 14926.05}, {"fecha": "2026-07-06", "sku": "5119740", "desc": "SILLA GENOUD FRIDA L.ROBLE T. LINO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 152151.27, "c_nue": 161280.14, "pct": 6.0, "ult": 10522.79}, {"fecha": "2026-07-06", "sku": "80787822", "desc": "SILLA GENOUD ISABEL L.NOGAL T.LINO ARENA(L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 131046.91, "c_nue": 138909.72, "pct": 6.0, "ult": 4339.85}, {"fecha": "2026-07-06", "sku": "80805513", "desc": "SILLA GENOUD FRIDA L.ROBLE T.GRANATE (L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 152151.27, "c_nue": 161280.14, "pct": 6.0, "ult": 4118.01}, {"fecha": "2026-07-06", "sku": "80805515", "desc": "SILLA GENOUD ANA NOGAL TELA JACK ESP.GRIS (L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 131264.74, "c_nue": 139139.73, "pct": 6.0, "ult": 4371.54}, {"fecha": "2026-07-06", "sku": "80813478", "desc": "SILLA GENOUD FRIDA L.NOGAL T.GAMO(L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 152151.27, "c_nue": 161280.14, "pct": 6.0, "ult": 10522.79}, {"fecha": "2026-07-06", "sku": "80814317", "desc": "MESA GENOUD CONTEMPORANEA ROBLE RECTA 180X090", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 495012.52, "c_nue": 524713.41, "pct": 6.0, "ult": 475974.74}, {"fecha": "2026-07-06", "sku": "80814318", "desc": "MESA GENOUD DRESUAR 120X40X78 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA CENTRO", "c_ant": 229924.6, "c_nue": 243719.29, "pct": 6.0, "ult": 189749.15}, {"fecha": "2026-07-06", "sku": "80814319", "desc": "PERCHERO GENOUD OTOÑO ROBLE 180X051X051", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "PETIT MUEBLES", "c_ant": 129286.68, "c_nue": 137044.77, "pct": 6.0, "ult": 106696.6}, {"fecha": "2026-07-06", "sku": "80814320", "desc": "SILLA GENOUD FRIDA L.ROBLE T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 152151.27, "c_nue": 161280.14, "pct": 6.0, "ult": 125564.79}, {"fecha": "2026-07-06", "sku": "80817765", "desc": "MESA DE LUZ GENOUD L.CONTEMP. 2C BLANCA", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA DE LUZ", "c_ant": 240453.83, "c_nue": 254881.06, "pct": 6.0, "ult": 13710.91}, {"fecha": "2026-07-06", "sku": "80817766", "desc": "MESA DE LUZ GENOUD L.CONTEMP. 2C ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA DE LUZ", "c_ant": 240453.83, "c_nue": 254881.06, "pct": 6.0, "ult": 13710.91}, {"fecha": "2026-07-06", "sku": "80819995", "desc": "BAHIUT GENOUD 1.55X0.45X0.90 C/HERR.MET. BLANCO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 854458.64, "c_nue": 905725.76, "pct": 6.0, "ult": 58115.5}, {"fecha": "2026-07-06", "sku": "80821163", "desc": "MESA GENOUD RATONA CONTEMPORANEA 90X55X40 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA CENTRO", "c_ant": 177633.27, "c_nue": 188291.2, "pct": 6.0, "ult": 146595.0}, {"fecha": "2026-07-06", "sku": "80821974", "desc": "SILLA GENOUD FRIDA L.ROBLE T.GRIS CLARO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 152151.27, "c_nue": 161280.14, "pct": 6.0, "ult": 36622.27}, {"fecha": "2026-07-06", "sku": "80824668", "desc": "FUTTON GENOUD PORTLAND FULL 1.90 ROB.S/COLC.RESORT", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "CAMA", "c_ant": 308015.12, "c_nue": 326496.03, "pct": 6.0, "ult": 35297.15}, {"fecha": "2026-07-06", "sku": "80825105", "desc": "FUTTON GENOUD PORTLAND CASTAÑO 1.90X1,38 C/COLCHON", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "CAMA", "c_ant": 572698.77, "c_nue": 607060.69, "pct": 6.0, "ult": 158726.24}, {"fecha": "2026-07-06", "sku": "80825236", "desc": "SILLA GENOUD FRIDA L.CASTAÑO T.GAMO (L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 152151.27, "c_nue": 161280.14, "pct": 6.0, "ult": 38148.46}, {"fecha": "2026-07-06", "sku": "80825237", "desc": "MESA GENOUD RATONA CONTEMPORANEA 90X55X40 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA CENTRO", "c_ant": 177633.27, "c_nue": 188291.2, "pct": 6.0, "ult": 146595.0}, {"fecha": "2026-07-06", "sku": "80826063", "desc": "PERCHERO GENOUD OTOÑO CASTAÑO 180X051X051", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "PETIT MUEBLES", "c_ant": 129286.68, "c_nue": 137044.77, "pct": 6.0, "ult": 106696.6}, {"fecha": "2026-07-06", "sku": "80826261", "desc": "MESA GENOUD DRESUAR 120X40X78 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA CENTRO", "c_ant": 229924.6, "c_nue": 243719.29, "pct": 6.0, "ult": 189749.15}, {"fecha": "2026-07-06", "sku": "80832882", "desc": "MESA GENOUD CONTEMPORANEA 180X090 CASTAÑO RECTA", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 495012.52, "c_nue": 524713.41, "pct": 6.0, "ult": 475974.74}, {"fecha": "2026-07-06", "sku": "80832883", "desc": "SILLA GENOUD FRIDA L.ROBLE T.VISON", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 152151.27, "c_nue": 161280.14, "pct": 6.0, "ult": 28791.35}, {"fecha": "2026-07-06", "sku": "80833852", "desc": "SILLA GENOUD FRIDA L.CASTAÑO T.GRIS CLARO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 152151.27, "c_nue": 161280.14, "pct": 6.0, "ult": 136936.15}, {"fecha": "2026-07-06", "sku": "80840562", "desc": "MESA GENOUD CONTEMPORANEA B.CTRAL 200X100X80 CASTA", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 605917.31, "c_nue": 642272.43, "pct": 6.0, "ult": 324618.88}, {"fecha": "2026-07-06", "sku": "80848586", "desc": "SILLA GENOUD SAPPORO L.ROBLE T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 217576.21, "c_nue": 230631.2, "pct": 6.0, "ult": 230631.2}, {"fecha": "2026-07-06", "sku": "80848587", "desc": "SILLA GENOUD SAPPORO L.ROBLE T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 217576.21, "c_nue": 230631.2, "pct": 6.0, "ult": 230631.2}, {"fecha": "2026-07-06", "sku": "80848588", "desc": "SILLA GENOUD SAPPORO L.CASTAÑO T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 217576.21, "c_nue": 230631.2, "pct": 6.0, "ult": 230631.2}, {"fecha": "2026-07-06", "sku": "80848589", "desc": "SILLA GENOUD SAPPORO L.CASTAÑO T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 217576.21, "c_nue": 230631.2, "pct": 6.0, "ult": 230631.2}, {"fecha": "2026-07-06", "sku": "80848590", "desc": "SILLON GENOUD SAPPORO L.ROBLE T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 243665.49, "c_nue": 258284.72, "pct": 6.0, "ult": 258284.72}, {"fecha": "2026-07-06", "sku": "80848591", "desc": "SILLON GENOUD SAPPORO L.ROBLE T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 243665.49, "c_nue": 258284.72, "pct": 6.0, "ult": 258284.72}, {"fecha": "2026-07-06", "sku": "80848592", "desc": "SILLON GENOUD SAPPORO L.CASTAÑO T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 243665.49, "c_nue": 258284.72, "pct": 6.0, "ult": 258284.72}, {"fecha": "2026-07-06", "sku": "80848593", "desc": "SILLON GENOUD SAPPORO L.CASTAÑO T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 243665.49, "c_nue": 258284.72, "pct": 6.0, "ult": 258284.72}, {"fecha": "2026-07-06", "sku": "80848598", "desc": "SILLON GENOUD KIOTO L.ROBLE T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 182346.68, "c_nue": 193287.05, "pct": 6.0, "ult": 193287.05}, {"fecha": "2026-07-06", "sku": "80848599", "desc": "SILLON GENOUD KIOTO L.ROBLE T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 182346.68, "c_nue": 193287.05, "pct": 6.0, "ult": 193287.05}, {"fecha": "2026-07-06", "sku": "80848600", "desc": "SILLON GENOUD KIOTO L.CASTAÑO T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 182346.68, "c_nue": 193287.05, "pct": 6.0, "ult": 193287.05}, {"fecha": "2026-07-06", "sku": "80848601", "desc": "SILLON GENOUD KIOTO L.CASTAÑO T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 182346.68, "c_nue": 193287.05, "pct": 6.0, "ult": 193287.05}, {"fecha": "2026-07-06", "sku": "80848602", "desc": "BANQUETA GENOUD OSAKA L.ROBLE T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 162298.13, "c_nue": 172036.35, "pct": 6.0, "ult": 172036.35}, {"fecha": "2026-07-06", "sku": "80848603", "desc": "BANQUETA GENOUD OSAKA L.ROBLE T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 162298.13, "c_nue": 172036.35, "pct": 6.0, "ult": 172036.35}, {"fecha": "2026-07-06", "sku": "80848604", "desc": "BANQUETA GENOUD OSAKA L.CASTAÑO T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 162298.13, "c_nue": 172036.35, "pct": 6.0, "ult": 172036.35}, {"fecha": "2026-07-06", "sku": "80848605", "desc": "BANQUETA GENOUD OSAKA L.CASTAÑO T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 162298.13, "c_nue": 172036.35, "pct": 6.0, "ult": 172036.35}, {"fecha": "2026-07-06", "sku": "80848606", "desc": "SILLA GENOUD OSAKA L.ROBLE T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 155130.77, "c_nue": 164438.62, "pct": 6.0, "ult": 164438.62}, {"fecha": "2026-07-06", "sku": "80848607", "desc": "SILLA GENOUD OSAKA L.ROBLE T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 155130.77, "c_nue": 164438.62, "pct": 6.0, "ult": 164438.62}, {"fecha": "2026-07-06", "sku": "80848608", "desc": "SILLA GENOUD OSAKA L.CASTAÑO T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 155130.77, "c_nue": 164438.62, "pct": 6.0, "ult": 164438.62}, {"fecha": "2026-07-06", "sku": "80848609", "desc": "SILLA GENOUD OSAKA L.CASTAÑO T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 155130.77, "c_nue": 164438.62, "pct": 6.0, "ult": 164438.62}, {"fecha": "2026-07-06", "sku": "80848610", "desc": "SILLA GENOUD NAOTO L.ROBLE T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 164993.14, "c_nue": 174892.75, "pct": 6.0, "ult": 174892.75}, {"fecha": "2026-07-06", "sku": "80848611", "desc": "SILLA GENOUD NAOTO L.ROBLE T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 164993.14, "c_nue": 174892.75, "pct": 6.0, "ult": 136164.17}, {"fecha": "2026-07-06", "sku": "80848612", "desc": "SILLA GENOUD NAOTO L.CASTAÑO T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 164993.14, "c_nue": 174892.75, "pct": 6.0, "ult": 174892.75}, {"fecha": "2026-07-06", "sku": "80848613", "desc": "SILLA GENOUD NAOTO L.CASTAÑO T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 164993.14, "c_nue": 174892.75, "pct": 6.0, "ult": 174892.75}, {"fecha": "2026-07-06", "sku": "80848614", "desc": "SILLA GENOUD CAMILA L.ROBLE T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 151771.59, "c_nue": 160877.7, "pct": 6.0, "ult": 160877.7}, {"fecha": "2026-07-06", "sku": "80848615", "desc": "SILLA GENOUD CAMILA L.ROBLE T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 151771.59, "c_nue": 160877.7, "pct": 6.0, "ult": 160877.7}, {"fecha": "2026-07-06", "sku": "80848616", "desc": "SILLA GENOUD CAMILA L.CASTAÑO T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 151771.59, "c_nue": 160877.7, "pct": 6.0, "ult": 160877.7}, {"fecha": "2026-07-06", "sku": "80848617", "desc": "SILLA GENOUD CAMILA L.CASTAÑO T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 151771.59, "c_nue": 160877.7, "pct": 6.0, "ult": 160877.7}, {"fecha": "2026-07-06", "sku": "80848618", "desc": "SILLA GENOUD ANA L.ROBLE T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 131264.74, "c_nue": 139139.73, "pct": 6.0, "ult": 139139.73}, {"fecha": "2026-07-06", "sku": "80848619", "desc": "SILLA GENOUD ANA L.ROBLE T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 131264.74, "c_nue": 139139.73, "pct": 6.0, "ult": 139139.73}, {"fecha": "2026-07-06", "sku": "80848620", "desc": "SILLA GENOUD ANA L.CASTAÑO T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 131264.74, "c_nue": 139139.73, "pct": 6.0, "ult": 139139.73}, {"fecha": "2026-07-06", "sku": "80848621", "desc": "SILLA GENOUD ANA L.CASTAÑO T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 131264.74, "c_nue": 139139.73, "pct": 6.0, "ult": 139139.73}, {"fecha": "2026-07-06", "sku": "80848622", "desc": "MESA GENOUD BOHEMIA L.ROBLE 145X090X078", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 385471.26, "c_nue": 408599.66, "pct": 6.0, "ult": 408599.66}, {"fecha": "2026-07-06", "sku": "80848623", "desc": "MESA GENOUD BOHEMIA L.CASTAÑO 145X090X078", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 385471.26, "c_nue": 408599.66, "pct": 6.0, "ult": 370645.13}, {"fecha": "2026-07-06", "sku": "80848624", "desc": "MESA GENOUD BOHEMIA REDONDA L.ROBLE 100X100X078", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 350791.08, "c_nue": 371837.96, "pct": 6.0, "ult": 371837.96}, {"fecha": "2026-07-06", "sku": "80848625", "desc": "MESA GENOUD BOHEMIA REDONDA L.CASTAÑO 100X100X078", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 350791.08, "c_nue": 371837.96, "pct": 6.0, "ult": 371837.96}, {"fecha": "2026-07-06", "sku": "80848626", "desc": "MESA GENOUD CONTEMPORANEA B.CTRAL 260X120X80 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 982626.97, "c_nue": 1041584.94, "pct": 6.0, "ult": 1041584.94}, {"fecha": "2026-07-06", "sku": "80848627", "desc": "MESA GENOUD CONTEMPORANEA B.CTRAL 260X120X80 CASTA", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 982626.97, "c_nue": 1041584.94, "pct": 6.0, "ult": 1041584.94}, {"fecha": "2026-07-06", "sku": "80848628", "desc": "MESA GENOUD CONTEMPORANEA B.CTRAL 200X100X80 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 605917.31, "c_nue": 642272.43, "pct": 6.0, "ult": 642272.43}, {"fecha": "2026-07-06", "sku": "80848629", "desc": "MESA GENOUD CONTEMPORANEA B.CTRAL 160X090X078 ROBL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 492069.22, "c_nue": 521593.21, "pct": 6.0, "ult": 521593.21}, {"fecha": "2026-07-06", "sku": "80848630", "desc": "MESA GENOUD CONTEMPORANEA B.CTRAL 160X090X078 CAST", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 492069.22, "c_nue": 521593.21, "pct": 6.0, "ult": 521593.21}, {"fecha": "2026-07-06", "sku": "80848631", "desc": "MESA GENOUD CONTEMPORANEA EXT. 155X090X080 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 654926.02, "c_nue": 694221.33, "pct": 6.0, "ult": 694221.33}, {"fecha": "2026-07-06", "sku": "80848632", "desc": "MESA GENOUD CONTEMPORANEA EXT. 155X090X080 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 654926.02, "c_nue": 694221.33, "pct": 6.0, "ult": 694221.33}, {"fecha": "2026-07-06", "sku": "80848633", "desc": "MESA GENOUD CONTEMPORANEA EXT. 130X090X080 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 602894.36, "c_nue": 639068.43, "pct": 6.0, "ult": 639068.43}, {"fecha": "2026-07-06", "sku": "80848634", "desc": "MESA GENOUD CONTEMPORANEA EXT. 130X090X080 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 602894.36, "c_nue": 639068.43, "pct": 6.0, "ult": 639068.43}, {"fecha": "2026-07-06", "sku": "80848635", "desc": "MESA GENOUD CONTEMPORANEA 145X085X078 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 453483.61, "c_nue": 480692.28, "pct": 6.0, "ult": 480692.28}, {"fecha": "2026-07-06", "sku": "80848636", "desc": "MESA GENOUD CONTEMPORANEA 145X085X078 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 453483.61, "c_nue": 480692.28, "pct": 6.0, "ult": 480692.28}, {"fecha": "2026-07-06", "sku": "80848637", "desc": "MESA GENOUD CONTEMPORANEA 120X080X078 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 298344.56, "c_nue": 316245.38, "pct": 6.0, "ult": 316245.38}, {"fecha": "2026-07-06", "sku": "80848638", "desc": "MESA GENOUD CONTEMPORANEA 120X080X078 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 298344.56, "c_nue": 316245.38, "pct": 6.0, "ult": 316245.38}, {"fecha": "2026-07-06", "sku": "80848639", "desc": "MESA GENOUD CONTEMPORANEA 138X138X078 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 510606.29, "c_nue": 541242.42, "pct": 6.0, "ult": 541242.42}, {"fecha": "2026-07-06", "sku": "80848640", "desc": "MESA GENOUD CONTEMPORANEA 138X138X078 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 510606.29, "c_nue": 541242.42, "pct": 6.0, "ult": 541242.42}, {"fecha": "2026-07-06", "sku": "80848641", "desc": "MESA GENOUD BARRA CONTEMPORANEA 120X060X108 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 318233.79, "c_nue": 337328.48, "pct": 6.0, "ult": 337328.48}, {"fecha": "2026-07-06", "sku": "80848642", "desc": "MESA GENOUD BARRA CONTEMPORANEA 120X060X108 CASTAÑ", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 318233.79, "c_nue": 337328.48, "pct": 6.0, "ult": 337328.48}, {"fecha": "2026-07-06", "sku": "80848643", "desc": "MESA GENOUD VINTAGE 160X090X080 ROBLE (L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 373510.35, "c_nue": 395920.97, "pct": 6.0, "ult": 395920.97}, {"fecha": "2026-07-06", "sku": "80848644", "desc": "MESA GENOUD VINTAGE 160X090X080 CASTAÑO (L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 373510.35, "c_nue": 395920.97, "pct": 6.0, "ult": 395920.97}, {"fecha": "2026-07-06", "sku": "80848645", "desc": "MESA GENOUD VINTAGE REDONDA 120X120X080 ROBLE(L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 352644.08, "c_nue": 373802.72, "pct": 6.0, "ult": 373802.72}, {"fecha": "2026-07-06", "sku": "80848646", "desc": "MESA GENOUD VINTAGE REDONDA 120X120X080 CASTAÑO(L)", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 352644.08, "c_nue": 373802.72, "pct": 6.0, "ult": 373802.72}, {"fecha": "2026-07-06", "sku": "80848649", "desc": "MESA GENOUD RATONA CONTEMPORANEA 120X070X040 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA CENTRO", "c_ant": 244681.42, "c_nue": 259362.72, "pct": 6.0, "ult": 259362.72}, {"fecha": "2026-07-06", "sku": "80848650", "desc": "MESA GENOUD RATONA CONTEMPORANEA 120X070X040 CASTA", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA CENTRO", "c_ant": 244681.42, "c_nue": 259362.72, "pct": 6.0, "ult": 259362.72}, {"fecha": "2026-07-06", "sku": "80848651", "desc": "COMODA GENOUD BOHEMIA 4C 108X045X100 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "COMODA", "c_ant": 546159.64, "c_nue": 578929.01, "pct": 6.0, "ult": 578929.01}, {"fecha": "2026-07-06", "sku": "80848652", "desc": "COMODA GENOUD BOHEMIA 4C 108X045X100 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "COMODA", "c_ant": 546159.64, "c_nue": 578929.01, "pct": 6.0, "ult": 578929.01}, {"fecha": "2026-07-06", "sku": "80848653", "desc": "MESA DE LUZ GENOUD BOHEMIA 2C 056X045X073 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA DE LUZ", "c_ant": 250087.98, "c_nue": 265093.09, "pct": 6.0, "ult": 265093.09}, {"fecha": "2026-07-06", "sku": "80848654", "desc": "MESA DE LUZ GENOUD BOHEMIA 2C 056X045X073 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA DE LUZ", "c_ant": 250087.98, "c_nue": 265093.09, "pct": 6.0, "ult": 206389.65}, {"fecha": "2026-07-06", "sku": "80848655", "desc": "RACK TV GENOUD BOHEMIO 180X045X072 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "RACK", "c_ant": 595997.01, "c_nue": 631757.27, "pct": 6.0, "ult": 631757.27}, {"fecha": "2026-07-06", "sku": "80848656", "desc": "RACK TV GENOUD BOHEMIO 180X045X072 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "RACK", "c_ant": 595997.01, "c_nue": 631757.27, "pct": 6.0, "ult": 631757.27}, {"fecha": "2026-07-06", "sku": "80848657", "desc": "RACK TV GENOUD CONTEMPORANEO 152X045X062 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "RACK", "c_ant": 611565.96, "c_nue": 648260.41, "pct": 6.0, "ult": 648260.41}, {"fecha": "2026-07-06", "sku": "80848658", "desc": "RACK TV GENOUD CONTEMPORANEO 152X045X062 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "RACK", "c_ant": 611565.96, "c_nue": 648260.41, "pct": 6.0, "ult": 648260.41}, {"fecha": "2026-07-06", "sku": "80848659", "desc": "BAHIUT GENOUD CONTEMPORANEO 152X045X090 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 854458.64, "c_nue": 905725.76, "pct": 6.0, "ult": 905725.76}, {"fecha": "2026-07-06", "sku": "80848660", "desc": "BAHIUT GENOUD CONTEMPORANEO 152X045X090 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 854458.64, "c_nue": 905725.76, "pct": 6.0, "ult": 719259.92}, {"fecha": "2026-07-06", "sku": "80848661", "desc": "RACK MODULAR GENOUD CONTEMP. 260X045X190 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "RACK", "c_ant": 1333829.8, "c_nue": 1413860.52, "pct": 6.0, "ult": 1413860.52}, {"fecha": "2026-07-06", "sku": "80848662", "desc": "RACK MODULAR GENOUD CONTEMP. 260X045X190 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "RACK", "c_ant": 1333829.8, "c_nue": 1413860.52, "pct": 6.0, "ult": 1413860.52}, {"fecha": "2026-07-06", "sku": "80848663", "desc": "ESTANTERIA GENOUD CONTEMP. 190X045X059 3E/1P ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "RACK", "c_ant": 476594.42, "c_nue": 505189.39, "pct": 6.0, "ult": 505189.39}, {"fecha": "2026-07-06", "sku": "80848664", "desc": "ESTANTERIA GENOUD CONTEMP. 190X045X059 3E/1P CASTA", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "RACK", "c_ant": 476594.42, "c_nue": 505189.39, "pct": 6.0, "ult": 505189.39}, {"fecha": "2026-07-06", "sku": "80848665", "desc": "TORRE GENOUD CONTEMP. T4 190X045X059 3E/2P ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 567221.0, "c_nue": 601254.6, "pct": 6.0, "ult": 601254.6}, {"fecha": "2026-07-06", "sku": "80848666", "desc": "TORRE GENOUD CONTEMP. T4 190X045X059 3E/2P CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 567221.0, "c_nue": 601254.6, "pct": 6.0, "ult": 601254.6}, {"fecha": "2026-07-06", "sku": "80848667", "desc": "TORRE GENOUD CONTEMP. T6 190X045X059 3E/2C ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 629049.85, "c_nue": 666793.34, "pct": 6.0, "ult": 666793.34}, {"fecha": "2026-07-06", "sku": "80848668", "desc": "TORRE GENOUD CONTEMP. T6 190X045X059 3E/2C CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 629049.85, "c_nue": 666793.34, "pct": 6.0, "ult": 666793.34}, {"fecha": "2026-07-06", "sku": "80848669", "desc": "VITRINA GENOUD CONTEMPORANEA 190X045X090 ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 846979.88, "c_nue": 897799.04, "pct": 6.0, "ult": 897799.04}, {"fecha": "2026-07-06", "sku": "80848670", "desc": "VITRINA GENOUD CONTEMPORANEA 190X045X090 CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MODULAR", "c_ant": 846979.88, "c_nue": 897799.04, "pct": 6.0, "ult": 897799.04}, {"fecha": "2026-07-06", "sku": "80848671", "desc": "PERCHERO GENOUD OTOÑO NEGRO 180X051X051", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "PETIT MUEBLES", "c_ant": 129286.68, "c_nue": 137044.77, "pct": 6.0, "ult": 137044.77}, {"fecha": "2026-07-06", "sku": "80848672", "desc": "SILLA GENOUD NAOTO L.CASTAÑO T.GRIS CLARO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 164993.14, "c_nue": 174892.75, "pct": 6.0, "ult": 158648.24}, {"fecha": "2026-07-06", "sku": "80848647", "desc": "MESA GENOUD VINTAGE 160X090X080 +EXT.045M ROBLE", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 525281.57, "c_nue": 557890.4, "pct": 6.2, "ult": 557890.4}, {"fecha": "2026-07-06", "sku": "80848648", "desc": "MESA GENOUD VINTAGE 160X090X080 +EXT.045M CASTAÑO", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "MESA", "c_ant": 525281.57, "c_nue": 557890.4, "pct": 6.2, "ult": 557890.4}, {"fecha": "2026-07-06", "sku": "80815282", "desc": "VENT.DE TECHO SEVERBON VTA420PP A.INOX 4P 1.20 85W", "marca": "SEVERBON", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 104044.36, "c_nue": 114448.4, "pct": 10.0, "ult": 20679.63}, {"fecha": "2026-07-06", "sku": "80825944", "desc": "VENT.DE TECHO SEVERBON VTA420TP BCO 1.2M (30021)", "marca": "SEVERBON", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 89684.79, "c_nue": 98652.73, "pct": 10.0, "ult": 75868.37}, {"fecha": "2026-07-06", "sku": "80830869", "desc": "VENT.DE TECHO SEVERBON VTA420 NEGRO 30078", "marca": "SEVERBON", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 83427.78, "c_nue": 91770.36, "pct": 10.0, "ult": 83427.78}, {"fecha": "2026-07-06", "sku": "80842998", "desc": "VENT.DE TECHO PROTALIA 3420 PLAT/NG 85W C.REM.C/LU", "marca": "PROTALIA", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 105881.76, "c_nue": 116470.0, "pct": 10.0, "ult": 105881.76}, {"fecha": "2026-07-06", "sku": "80842999", "desc": "VENT.DE TECHO PROTALIA 3419R\n BCO/HAYA 85W C.REM.", "marca": "PROTALIA", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 105881.76, "c_nue": 116470.0, "pct": 10.0, "ult": 105881.76}, {"fecha": "2026-07-06", "sku": "80843432", "desc": "VENT.DE TECHO SEVERBON VTA420 A.INOX 1.2M LUZ C RE", "marca": "SEVERBON", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 125898.47, "c_nue": 138487.8, "pct": 10.0, "ult": 125898.47}, {"fecha": "2026-07-06", "sku": "80843433", "desc": "VENT.DE TECHO SEVERBON VTA420 NEG LUZ C/CONT REMOT", "marca": "SEVERBON", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 95672.37, "c_nue": 105239.61, "pct": 10.0, "ult": 95672.38}, {"fecha": "2026-07-06", "sku": "80850950", "desc": "VENT.DE TECHO SEVERBON VTA420 NG C.REM 30171", "marca": "SEVERBON", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 85468.42, "c_nue": 94015.0, "pct": 10.0, "ult": 85468.42}, {"fecha": "2026-07-06", "sku": "80850951", "desc": "VENT.DE TECHO SEVERBON VTA420 A.INOX 1.2M C.REM", "marca": "SEVERBON", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 106590.37, "c_nue": 117249.0, "pct": 10.0, "ult": 106590.36}, {"fecha": "2026-07-06", "sku": "80851550", "desc": "VENT.DE TECHO PROTALIA Y42 PLAT.655W DC ASP.RETRAC", "marca": "PROTALIA", "familia": "CLIMATIZACION", "rubro": "VENT.TECHO", "c_ant": 99999.41, "c_nue": 109999.41, "pct": 10.0, "ult": 99999.41}, {"fecha": "2026-07-06", "sku": "80848594", "desc": "SILLA GENOUD KIOTO L.ROBLE T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 182346.68, "c_nue": 161573.95, "pct": -11.4, "ult": 161573.95}, {"fecha": "2026-07-06", "sku": "80848595", "desc": "SILLA GENOUD KIOTO L.ROBLE T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 182346.68, "c_nue": 161573.95, "pct": -11.4, "ult": 161573.95}, {"fecha": "2026-07-06", "sku": "80848596", "desc": "SILLA GENOUD KIOTO L.CASTAÑO T.NATURAL", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 182346.68, "c_nue": 161573.95, "pct": -11.4, "ult": 161573.95}, {"fecha": "2026-07-06", "sku": "80848597", "desc": "SILLA GENOUD KIOTO L.CASTAÑO T.GRIS", "marca": "GENOUD", "familia": "MUEBLES", "rubro": "SILLA", "c_ant": 182346.68, "c_nue": 161573.95, "pct": -11.4, "ult": 161573.95}, {"fecha": "2026-07-06", "sku": "80807955", "desc": "CALEFACTOR ESKABE MINICONVEX S21 5000KCAL S21 MX5P", "marca": "ESKABE", "familia": "CLIMATIZACION", "rubro": "CALEFACTOR", "c_ant": 206422.2, "c_nue": 244384.74, "pct": 18.4, "ult": 178196.41}, {"fecha": "2026-07-06", "sku": "80807956", "desc": "CALEFACTOR ESKABE S21 4800KCAL TB5 P T.BAL MG", "marca": "ESKABE", "familia": "CLIMATIZACION", "rubro": "CALEFACTOR", "c_ant": 306145.67, "c_nue": 362448.26, "pct": 18.4, "ult": 274830.12}, {"fecha": "2026-07-06", "sku": "80807957", "desc": "CALEFACTOR ESKABE MINICONVEX S21 3000KCAL S21MX3P", "marca": "ESKABE", "familia": "CLIMATIZACION", "rubro": "CALEFACTOR", "c_ant": 173859.48, "c_nue": 205833.9, "pct": 18.4, "ult": 150086.46}, {"fecha": "2026-07-06", "sku": "80807958", "desc": "CALEFACTOR ESKABE S21 3000KCAL TB3 P T.BAL MG", "marca": "ESKABE", "familia": "CLIMATIZACION", "rubro": "CALEFACTOR", "c_ant": 246425.7, "c_nue": 291745.79, "pct": 18.4, "ult": 214775.62}, {"fecha": "2026-07-06", "sku": "80816153", "desc": "CALEFACTOR ESKABE 3000 TITANIO TT TB3 TE C/TERMOST", "marca": "ESKABE", "familia": "CLIMATIZACION", "rubro": "CALEFACTOR", "c_ant": 465866.93, "c_nue": 551543.47, "pct": 18.4, "ult": 406032.92}, {"fecha": "2026-07-06", "sku": "80816154", "desc": "CALEFACTOR ESKABE 5000 TITANIO TT TB5 TE_x000D_\n C/TERMO", "marca": "ESKABE", "familia": "CLIMATIZACION", "rubro": "CALEFACTOR", "c_ant": 598018.94, "c_nue": 707999.37, "pct": 18.4, "ult": 521211.37}, {"fecha": "2026-07-06", "sku": "80816858", "desc": "CALEFACTOR ESKABE MINICONVEX S21 8000KCAL S21 MX8P", "marca": "ESKABE", "familia": "CLIMATIZACION", "rubro": "CALEFACTOR", "c_ant": 240690.03, "c_nue": 284954.59, "pct": 18.4, "ult": 207778.71}, {"fecha": "2026-07-06", "sku": "80851838", "desc": "ESTUFA GARRAFERA ESKABE S21MM5G24 5KW/430KCAL", "marca": "ESKABE", "familia": "CLIMATIZACION", "rubro": "ESTUFA", "c_ant": 217641.28, "c_nue": 257667.24, "pct": 18.4, "ult": 189688.31}, {"fecha": "2026-07-06", "sku": "80851839", "desc": "CALEFACTOR ESKABE FD2 ELECT.1800W", "marca": "ESKABE", "familia": "CLIMATIZACION", "rubro": "CALEFACTOR", "c_ant": 147126.5, "c_nue": 174184.72, "pct": 18.4, "ult": 128230.46}, {"fecha": "2026-07-06", "sku": "861144", "desc": "CALEFACTOR ESKABE S21 3000 TB/TBU3 MF/GF/TE G1", "marca": "ESKABE", "familia": "CLIMATIZACION", "rubro": "CALEFACTOR", "c_ant": 246425.7, "c_nue": 324284.42, "pct": 31.6, "ult": 4238.99}, {"fecha": "2026-07-06", "sku": "46124", "desc": "DIVAN CAMA CRAVERO 20320 QUALITY 0,80 TAB CON CARR", "marca": "CRAVERO DORMITO", "familia": "MUEBLES", "rubro": "CAMA", "c_ant": 288780.86, "c_nue": 179071.89, "pct": -38.0, "ult": 11889.18}, {"fecha": "2026-07-06", "sku": "37469", "desc": "BICICLETA ROD.16 HALLEY 19057 PLAYERA NENA", "marca": "HALLEY", "familia": "RODADOS", "rubro": "BICICLETA", "c_ant": 456730.91, "c_nue": 165129.46, "pct": -63.8, "ult": 120659.22}, {"fecha": "2026-07-06", "sku": "34764", "desc": "CEPILLO GAMA 124868 INNOVA HOT BRUSH MINI", "marca": "GAMA", "familia": "PEQUEÑOS ELECTRODOMESTICOS", "rubro": "SECADOR", "c_ant": 128345.17, "c_nue": 28234.48, "pct": -78.0, "ult": 26677.11}, {"fecha": "2026-07-06", "sku": "33165", "desc": "ASPIRADORA ULTRACOMB AS-4224 S/BOLSA 1800W", "marca": "ULTRACOMB", "familia": "PEQUEÑOS ELECTRODOMESTICOS", "rubro": "ASPIRADORA", "c_ant": 386937.84, "c_nue": 75366.61, "pct": -80.5, "ult": 66280.47}, {"fecha": "2026-07-06", "sku": "47197", "desc": "ALMOHADA SUAVESTAR FIBRA  90X40", "marca": "SUAVESTAR", "familia": "COLCHONES Y SOMMIERS", "rubro": "ALMOHADA", "c_ant": 111662.8, "c_nue": 9129.47, "pct": -91.8, "ult": 1440.75}, {"fecha": "2026-07-06", "sku": "43514", "desc": "BAJO MESADA ORLANDI 433 0.80 2P BLANCO SOFT(L)", "marca": "ORLANDI", "familia": "MUEBLES", "rubro": "JUEGO COCINA", "c_ant": 121907.41, "c_nue": 7166.4, "pct": -94.1, "ult": 7166.4}, {"fecha": "2026-07-06", "sku": "1501", "desc": "PLATO TSUJI PLAYO 25 CM (45020)", "marca": "TSUJI", "familia": "BAZAR", "rubro": "PLATO", "c_ant": 180338.4, "c_nue": 6785.3, "pct": -96.2, "ult": 6785.3}, {"fecha": "2026-07-06", "sku": "47195", "desc": "ALMOHADA SUAVESTAR FIBRA  70X40", "marca": "SUAVESTAR", "familia": "COLCHONES Y SOMMIERS", "rubro": "ALMOHADA", "c_ant": 274188.67, "c_nue": 8417.99, "pct": -96.9, "ult": 2608.76}, {"fecha": "2026-07-06", "sku": "4834", "desc": "PLACARD RICCHEZZE TANA 5P/2C 182X142X47 MOG 7740 (", "marca": "RICHEZE", "familia": "MUEBLES", "rubro": "PLACARD", "c_ant": 38234.71, "c_nue": 112377.38, "pct": 193.9, "ult": 2182.55}, {"fecha": "2026-07-06", "sku": "117216", "desc": "JGO. SABANA LE BLANK  DIAMANTE 11/2 GRIS", "marca": "TEKA", "familia": "BLANCO", "rubro": "SABANAS", "c_ant": 2294.25, "c_nue": 25159.11, "pct": 996.6, "ult": 25159.11}];
 const FAMILIAS = ["BAZAR", "BLANCO", "CLIMATIZACION", "COLCHONES Y SOMMIERS", "HOGAR", "MUEBLES", "PEQUEÑOS ELECTRODOMESTICOS", "RODADOS", "T.V. / DVD"];
 const RUBROS   = ["ALMOHADA", "ASPIRADORA", "BICICLETA", "CALEFACTOR", "CAMA", "COCINA", "COMODA", "ESTUFA", "HORNO", "JUEGO COCINA", "LED", "MESA", "MESA CENTRO", "MESA DE LUZ", "MODULAR", "PETIT MUEBLES", "PLACARD", "PLATO", "RACK", "SABANAS", "SECADOR", "SILLA", "TERMOTANQUE", "VENT.TECHO"];
+const MARCAS   = ["CRAVERO DORMITO", "ESKABE", "FLORENCIA", "GAMA", "GENOUD", "HALLEY", "ORLANDI", "PHILIPS", "PROTALIA", "RICHEZE", "SEVERBON", "SUAVESTAR", "TEKA", "TSUJI", "ULTRACOMB"];
 const FECHAS   = ["2026-07-06"];
+const FAM_RUB  = {"APARATOS DE GIMNASIA": ["APARATO DE GIMNASIA"], "AUDIO": ["AUDIO", "AURICULAR", "AUTOESTEREO", "HOME THEATRE", "INSTRUMENTOS MUSICALES", "MICROFONO", "MINI SYSTEM", "PARLANTES BT DE PISO", "PARLANTES PARA AUTOS", "PARLANTES PORTATILES BT", "RADIO", "RADIO RELOJ", "RADIOGRABADOR"], "BAZAR": ["ASADERA", "BATERIA DE COCINA", "BOLS", "COMPOTERA", "COPAS", "CUBIERTOS", "ENSALADERA", "FUENTE", "JARRA", "JARRO", "OLLA", "PLATO", "SARTEN", "TAZA", "TERMOS", "VARIOS", "VASOS"], "BEBES": ["ANDADOR", "BAÑERA", "COCHE CUNA", "CUNA BOLSO", "PELELA", "SILLA ALTA BEBE"], "BLANCO": ["ACOLCHADO", "BLANCO VARIOS", "CUBRECAMA", "FRAZADA", "SABANAS", "TOALLAS"], "CAMPING Y JARDIN": ["ACCESORIOS DE CAMPING", "BOLSA DE DORMIR", "BOLSO", "CARPA", "COLCHON INFLABLE", "CONSERVADORA", "CORT.CESPED", "GAZEBOS", "INSECTOCUTORES", "JUEGO DE JARDIN", "LIMPIADORA A VAPOR", "MANGUERA", "MESA PLASTICA", "MOTOGUADAÑA", "PILETA", "REPOSERA", "SILLA PLASTICA", "SOMBRILLA"], "CLIMATIZACION": ["ACOND. PORTATIL", "ACONDICIONADOR", "CALEFACTOR", "CALOVENTOR", "CIRCULADOR", "CLIMATIZADOR", "CONVECTOR", "ESTUFA", "LENERO", "PANTALLA INFRARROJA", "SPLIT", "TURBO", "VENT.TECHO"], "COLCHONES Y SOMMIERS": ["ALMOHADA", "COLCHON", "SOMIER"], "EQUIPAMIENTOS COMERCIALES": ["BALANZA COMERCIAL", "BATEA", "CARLITERO", "HORNO/ANAFE/COCINA", "LOMITERA", "PANCHUQUERA"], "HERRAMIENTAS": ["CAJA DE SEGURIDAD", "COMPRESOR", "GRUPO ELECTROGENO", "HERRAMIENTA", "HIDROLAVADORA", "SOLDADORA"], "HOGAR": ["ANAFE", "CALCULADORA", "CALEFON", "CALEFON ELECTRICO", "CAMPANA", "CAVA", "COCINA", "EXHIBIDORAS", "FREEZER", "HELADERA CON FREEZER", "HELADERA SIN FREEZER", "HORNO", "LAVARROPA AUTOMATICO", "LAVARROPA COMUN", "LAVASECARROPA", "LAVAVAJILLA", "LUZ DE EMERGENCIA", "MAQUINA DE COSER", "MICROONDA", "PURIFICADOR", "SECARROPA", "TERMOTANQUE"], "INFORMATICA": ["ACC.COMPUTACION", "CABLES Y CONECTORES", "CAMARAS EXTREMAS/WEB", "CARGADORES/BATERIAS EXT/POWER BANKS", "CARTUCHO-TINTA-TONER", "COMBO TECLADO Y MOUSE", "DISCO RIGIDO INTERNOS/EXTERNOS/SSD", "ESTABILIZADORES Y UPS", "FUENTES PC", "IMPRESORA", "JUEGOS Y ACCESORIOS", "MOCHILAS, FUNDAS Y ESTUCHES", "MODEM/ROUTER/SWITCH/ANTENAS/ADAPTADORE/ RED", "MONITOR", "MOUSE", "NOTEBOOK", "PARLANTES MULTIMEDIA 2.1", "PC ALL IN ONE", "PC DE ESCRITORIO", "PEN DRIVE", "PROYECTOR", "SILLA Y ESCRITORIO GAMER", "SMARTER/CAPTURADORA/SINTONIZADOR TV", "SMARTWACH Y RELOJES P/CORRER", "TABLETS", "TARJETA MEMORIA", "TECLADOS"], "JUGUETERIA": ["JUGUETE", "PELOTA"], "MUEBLES": ["BANQUETA", "BAR", "CAMA", "CHIFONIER", "COMODA", "CUCHETA", "CUNA", "ESPEJO", "JUEGO BAÑO", "JUEGO COCINA", "JUEGO COMEDOR", "JUEGO DORMITORIO", "JUEGO LIVING", "MESA", "MESA CENTRO", "MESA DE LUZ", "MESA DE PLANCHAR", "MESA PC", "MESA T.V.", "MODULAR", "MUEBLE", "PETIT MUEBLES", "PLACARD", "RACK", "SILLA", "TENDEDERO", "ZAPATERA"], "MUEBLES DE OFICINA": ["BIBLIOTECA", "ESCRITORIO", "OFICINA"], "PEQUEÑOS ELECTRODOMESTICOS": ["AFEITADORA", "ARTS.VARIOS", "ASPIRADORA", "BALANZA", "BATIDORA", "CAFETERA", "COMBO", "CORTABARBA", "CORTADORA DE PELO", "CUCHILLO Y CORTADORA", "DEPILADORA", "EXPRIMIDOR", "FABRIPASTA", "FILTRO DE AGUA", "FREIDORA", "GRILL", "HORNO DE PAN", "HORNO ELECTRICO", "LICUADORA", "LUSTRASPIRADORA", "MASAJEADOR", "MINIPIMER", "MONITOR DE FRECUENCIA CARDIACA", "NEBULIZADOR", "PAVA ELECTRICA", "PICADORA", "PLANCHA", "PLANCHITA CABELLO", "PROCESADORA", "SANDWICHERA", "SECADOR", "TENSIOMETRO", "TOSTADORA", "VAPORIERA", "WAFLERA", "YOGURTERA"], "RODADOS": ["ACCESORIO MOTOS", "BATERIA PARA AUTO", "BICICLETA", "CASCO", "CUBIERTA", "CUBIERTA MOTOS", "MOTO", "RODADO", "RODADO ELECTRICO", "ROLLER"], "T.V. / DVD": ["CONTROL REMOTO", "LED", "PILAS", "SOPORTE"], "TELEFONIA": ["ACC. PARA CELULARES", "CELULAR LIBRE", "TELEFONO"], "VIDEOJUEGOS": ["ACCESORIO VIDEOJUEGO", "CONSOLA", "CONSOLA PORTATIL", "JOYSTICK", "JUEGOS", "VIDEO JUEGO"]};
 
 // ── Tabs ─────────────────────────────────────────────────────────────────────
 function showTab(id) {
@@ -291,28 +328,52 @@ function showTab(id) {
 }
 
 // ── Utilidades ────────────────────────────────────────────────────────────────
-function fmt(n)  { return n != null ? '$ ' + Math.round(n).toLocaleString('es-AR') : '—'; }
+function fmt(n)  { return n != null ? '$ ' + Math.round(n).toLocaleString('es-AR') : '—'; }
+function dash(v) { return v != null ? fmt(v) : '<span style="color:#ccc">—</span>'; }
 function fmtP(n) {
+  if (n == null) return '<span style="color:#ccc">—</span>';
   const cls = n > 0 ? 'pct-up' : 'pct-down';
   const sign = n > 0 ? '+' : '';
-  return `<span class="pct-badge ${cls}">${sign}${n.toFixed(1)}%</span>`;
+  return '<span class="pct-badge ' + cls + '">' + sign + n.toFixed(1) + '%</span>';
 }
 function fmtF(f) { return f ? f.split('-').reverse().join('/') : '—'; }
 
+// ── Filtro cascada Familia → Rubro ────────────────────────────────────────────
+function onFamChange(tab) {
+  const famEl = document.getElementById('fam' + tab);
+  const rubEl = document.getElementById('rub' + tab);
+  const fam = famEl ? famEl.value : '';
+  if (!rubEl) return;
+  let rubros;
+  if (fam && FAM_RUB[fam]) {
+    rubros = FAM_RUB[fam];
+  } else {
+    rubros = tab === 'Hoy'
+      ? [...new Set(HOY.map(r=>r.rubro).filter(Boolean))].sort()
+      : [...new Set(HIST.map(r=>r.rubro).filter(Boolean))].sort();
+  }
+  rubEl.innerHTML = '<option value="">Todos</option>' + rubros.map(r=>'<option value="' + r + '">' + r + '</option>').join('');
+  if (tab === 'Hoy') renderHoy(); else renderHist();
+}
+
 // ── Render Hoy ────────────────────────────────────────────────────────────────
 let hSortCol = 'pct', hSortAsc = false;
-const H_COLS = ['sku','desc','rubro','marca','c_ant','c_nue','pct','ult'];
+const H_COLS = ['sku','desc','rubro','marca','c_ant','c_nue','pct_c','p_ant','p_nue','pct_p','ult'];
 
 function renderHoy() {
-  const q   = (document.getElementById('qHoy').value || '').toLowerCase();
-  const fam = document.getElementById('famHoy').value;
-  const rub = document.getElementById('rubHoy').value;
-  const dir = document.getElementById('dirHoy').value;
+  const q     = (document.getElementById('qHoy').value || '').toLowerCase();
+  const fam   = document.getElementById('famHoy').value;
+  const rub   = document.getElementById('rubHoy').value;
+  const marca = document.getElementById('marcaHoy').value;
+  const tipo  = document.getElementById('tipoHoy').value;
+  const dir   = document.getElementById('dirHoy').value;
 
   let rows = HOY.filter(r => {
-    if (q && !(r.sku+r.desc).toLowerCase().includes(q)) return false;
-    if (fam && r.familia !== fam) return false;
-    if (rub && r.rubro   !== rub) return false;
+    if (q     && !(r.sku+r.desc).toLowerCase().includes(q)) return false;
+    if (fam   && r.familia !== fam)   return false;
+    if (rub   && r.rubro   !== rub)   return false;
+    if (marca && r.marca   !== marca) return false;
+    if (tipo  && r.tipo    !== tipo)  return false;
     if (dir === 'up'   && r.pct <= 0) return false;
     if (dir === 'down' && r.pct >= 0) return false;
     return true;
@@ -330,19 +391,23 @@ function renderHoy() {
 
   const body = document.getElementById('bodyHoy');
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="8" class="no-data">${HOY.length === 0 ? 'Sin cambios detectados hoy.' : 'Sin resultados para el filtro.'}</td></tr>`;
+    body.innerHTML = '<tr><td colspan="11" class="no-data">' + (HOY.length === 0 ? 'Sin cambios detectados hoy.' : 'Sin resultados para el filtro.') + '</td></tr>';
     return;
   }
-  body.innerHTML = rows.map(r => `<tr>
-    <td>${r.sku}</td>
-    <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.desc}">${r.desc}</td>
-    <td>${r.rubro}</td>
-    <td>${r.marca}</td>
-    <td class="num">${fmt(r.c_ant)}</td>
-    <td class="num bold">${fmt(r.c_nue)}</td>
-    <td class="num">${fmtP(r.pct)}</td>
-    <td class="num">${r.ult != null ? fmt(r.ult) : '<span style="color:#ccc">—</span>'}</td>
-  </tr>`).join('');
+  body.innerHTML = rows.map(r => '<tr>' +
+    '<td>' + r.sku + '</td>' +
+    '<td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + r.desc + '">' + r.desc + '</td>' +
+    '<td>' + r.rubro + '</td>' +
+    '<td>' + r.marca + '</td>' +
+    '<td class="num">' + dash(r.c_ant) + '</td>' +
+    '<td class="num bold">' + dash(r.c_nue) + '</td>' +
+    '<td class="num">' + fmtP(r.pct_c) + '</td>' +
+    '<td class="num">' + dash(r.p_ant) + '</td>' +
+    '<td class="num bold">' + dash(r.p_nue) + '</td>' +
+    '<td class="num">' + fmtP(r.pct_p) + '</td>' +
+    '<td class="num">' + (r.ult != null ? fmt(r.ult) : '<span style="color:#ccc">—</span>') + '</td>' +
+    '</tr>'
+  ).join('');
 }
 
 function sortHoy(col) {
@@ -354,19 +419,24 @@ function limpiarHoy() {
   document.getElementById('qHoy').value = '';
   document.getElementById('famHoy').value = '';
   document.getElementById('rubHoy').value = '';
+  document.getElementById('marcaHoy').value = '';
+  document.getElementById('tipoHoy').value = '';
   document.getElementById('dirHoy').value = '';
+  onFamChange('Hoy');
   renderHoy();
 }
 
 // ── Render Historial ──────────────────────────────────────────────────────────
 let hiSortCol = 'fecha', hiSortAsc = false;
-const HI_COLS = ['fecha','sku','desc','rubro','marca','c_ant','c_nue','pct'];
+const HI_COLS = ['fecha','sku','desc','rubro','marca','c_ant','c_nue','pct_c','p_ant','p_nue','pct_p'];
 
 function renderHist() {
   const q     = (document.getElementById('qHist').value || '').toLowerCase();
   const fecha = document.getElementById('fechaHist').value;
   const fam   = document.getElementById('famHist').value;
   const rub   = document.getElementById('rubHist').value;
+  const marca = document.getElementById('marcaHist').value;
+  const tipo  = document.getElementById('tipoHist').value;
   const dir   = document.getElementById('dirHist').value;
 
   let rows = HIST.filter(r => {
@@ -374,6 +444,8 @@ function renderHist() {
     if (fecha && r.fecha   !== fecha) return false;
     if (fam   && r.familia !== fam)   return false;
     if (rub   && r.rubro   !== rub)   return false;
+    if (marca && r.marca   !== marca) return false;
+    if (tipo  && r.tipo    !== tipo)  return false;
     if (dir === 'up'   && r.pct <= 0) return false;
     if (dir === 'down' && r.pct >= 0) return false;
     return true;
@@ -391,19 +463,23 @@ function renderHist() {
 
   const body = document.getElementById('bodyHist');
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="8" class="no-data">Sin registros en el historial.</td></tr>`;
+    body.innerHTML = '<tr><td colspan="11" class="no-data">Sin registros en el historial.</td></tr>';
     return;
   }
-  body.innerHTML = rows.map(r => `<tr>
-    <td><span class="fecha-badge">${fmtF(r.fecha)}</span></td>
-    <td>${r.sku}</td>
-    <td style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.desc}">${r.desc}</td>
-    <td>${r.rubro}</td>
-    <td>${r.marca}</td>
-    <td class="num">${fmt(r.c_ant)}</td>
-    <td class="num bold">${fmt(r.c_nue)}</td>
-    <td class="num">${fmtP(r.pct)}</td>
-  </tr>`).join('');
+  body.innerHTML = rows.map(r => '<tr>' +
+    '<td><span class="fecha-badge">' + fmtF(r.fecha) + '</span></td>' +
+    '<td>' + r.sku + '</td>' +
+    '<td style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + r.desc + '">' + r.desc + '</td>' +
+    '<td>' + r.rubro + '</td>' +
+    '<td>' + r.marca + '</td>' +
+    '<td class="num">' + dash(r.c_ant) + '</td>' +
+    '<td class="num bold">' + dash(r.c_nue) + '</td>' +
+    '<td class="num">' + fmtP(r.pct_c) + '</td>' +
+    '<td class="num">' + dash(r.p_ant) + '</td>' +
+    '<td class="num bold">' + dash(r.p_nue) + '</td>' +
+    '<td class="num">' + fmtP(r.pct_p) + '</td>' +
+    '</tr>'
+  ).join('');
 }
 
 function sortHist(col) {
@@ -416,32 +492,37 @@ function limpiarHist() {
   document.getElementById('fechaHist').value = '';
   document.getElementById('famHist').value = '';
   document.getElementById('rubHist').value = '';
+  document.getElementById('marcaHist').value = '';
+  document.getElementById('tipoHist').value = '';
   document.getElementById('dirHist').value = '';
+  onFamChange('Hist');
   renderHist();
 }
 
 // ── Inicializar selects ───────────────────────────────────────────────────────
 function initSelects() {
-  const famOpts  = FAMILIAS.map(f => `<option value="${f}">${f}</option>`).join('');
-  const rubOpts  = RUBROS.map(r => `<option value="${r}">${r}</option>`).join('');
-  const fechOpts = FECHAS.map(f => `<option value="${f}">${fmtF(f)}</option>`).join('');
+  const famOpts   = FAMILIAS.map(f => '<option value="' + f + '">' + f + '</option>').join('');
+  const marcaOpts = MARCAS.map(m => '<option value="' + m + '">' + m + '</option>').join('');
+  const fechOpts  = FECHAS.map(f => '<option value="' + f + '">' + fmtF(f) + '</option>').join('');
 
-  // Hoy
-  const famHoyEl = document.getElementById('famHoy');
-  const rubHoyEl = document.getElementById('rubHoy');
+  // Hoy: listas dinámicas desde los datos de hoy
+  const famHoyEl   = document.getElementById('famHoy');
+  const marcaHoyEl = document.getElementById('marcaHoy');
   if (famHoyEl) {
     const famHoy = [...new Set(HOY.map(r=>r.familia).filter(Boolean))].sort();
-    famHoyEl.innerHTML = '<option value="">Todas</option>' + famHoy.map(f=>`<option value="${f}">${f}</option>`).join('');
+    famHoyEl.innerHTML = '<option value="">Todas</option>' + famHoy.map(f=>'<option value="' + f + '">' + f + '</option>').join('');
   }
-  if (rubHoyEl) {
-    const rubHoy = [...new Set(HOY.map(r=>r.rubro).filter(Boolean))].sort();
-    rubHoyEl.innerHTML = '<option value="">Todos</option>' + rubHoy.map(r=>`<option value="${r}">${r}</option>`).join('');
+  if (marcaHoyEl) {
+    const marcaHoy = [...new Set(HOY.map(r=>r.marca).filter(Boolean))].sort();
+    marcaHoyEl.innerHTML = '<option value="">Todas</option>' + marcaHoy.map(m=>'<option value="' + m + '">' + m + '</option>').join('');
   }
+  onFamChange('Hoy');
 
-  // Historial
-  document.getElementById('fechaHist').innerHTML = '<option value="">Todas</option>' + fechOpts;
-  document.getElementById('famHist').innerHTML   = '<option value="">Todas</option>' + famOpts;
-  document.getElementById('rubHist').innerHTML   = '<option value="">Todos</option>' + rubOpts;
+  // Historial: listas desde todo el historial
+  document.getElementById('fechaHist').innerHTML  = '<option value="">Todas</option>'  + fechOpts;
+  document.getElementById('famHist').innerHTML    = '<option value="">Todas</option>'  + famOpts;
+  document.getElementById('marcaHist').innerHTML  = '<option value="">Todas</option>'  + marcaOpts;
+  onFamChange('Hist');
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
