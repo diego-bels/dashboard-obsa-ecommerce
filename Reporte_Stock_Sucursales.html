@@ -227,6 +227,11 @@ table.sku-t td.tot-c { font-weight: 700; color: #0f3460; }
     <input type="text" id="qProd" placeholder="Descripcion o codigo..." oninput="render()"
       style="width:220px">
   </div>
+  <div class="fg" style="justify-content:flex-end">
+    <label>&nbsp;</label>
+    <button class="btn" onclick="limpiarFiltros()"
+      style="background:#6b7280;padding:7px 16px;font-size:0.82rem">✕ Limpiar filtros</button>
+  </div>
 </div>
 
 <!-- Selector de columnas de sucursal -->
@@ -752,6 +757,16 @@ function updateCards(rubros, famF, rubF, marF) {
     document.getElementById('cTop').textContent    = fmt(depSums[topDep.key]||0);
     document.getElementById('cTopSub').textContent = topDep.name;
   }
+}
+
+// ── Limpiar filtros ───────────────────────────────────────────────────────────
+function limpiarFiltros() {
+  selFams.clear();   msTags('fam');
+  selRubros.clear(); msTags('rub');
+  selMarcas.clear(); msTags('marca');
+  document.getElementById('qProd').value = '';
+  expandedRub = null;
+  render();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
