@@ -217,7 +217,7 @@ table.sku-t td.tot-c { font-weight: 700; color: #0f3460; }
       <div class="ms-row" onclick="document.getElementById('marcaInput').focus()">
         <span id="marcaTags"></span>
         <input type="text" id="marcaInput" class="ms-input" placeholder="Buscar marca..."
-          oninput="msFilter('marca')" onfocus="msOpen('marca')" autocomplete="off">
+          oninput="msFilterMarca()" onfocus="msOpenMarca()" autocomplete="off">
       </div>
       <div class="ms-dd" id="marcaDd"></div>
     </div>
@@ -293,12 +293,9 @@ const RUB_FAM = {};
 RUBROS.forEach(r => { RUB_FAM[r.rubro] = r.familia||''; });
 const ALL_RUBROS = RUBROS.map(r => r.rubro).sort((a,b) => a.localeCompare(b,'es'));
 
-// ── Multi-select Familia / Marca (genérico) ────────────────────────────────────
-const MS_LISTS = { fam: FAMILIAS, marca: MARCAS };
-const MS_SEL   = { fam: selFams, marca: selMarcas };
-const MS_IDS   = {
-  fam:   { wrap:'famWrap',  inp:'famInput',  dd:'famDd',  tags:'famTags'   },
-  marca: { wrap:'marcaWrap',inp:'marcaInput',dd:'marcaDd',tags:'marcaTags' },
+// ── Multi-select Familia (genérico simple) ─────────────────────────────────────
+const MS_IDS = {
+  fam: { wrap:'famWrap', inp:'famInput', dd:'famDd', tags:'famTags' },
 };
 
 function msOpen(k) {
@@ -306,35 +303,73 @@ function msOpen(k) {
   msFilter(k);
 }
 function msFilter(k) {
-  const q  = document.getElementById(MS_IDS[k].inp).value.toLowerCase();
-  const dd = document.getElementById(MS_IDS[k].dd);
-  const lst = q ? MS_LISTS[k].filter(x => x.toLowerCase().includes(q)) : MS_LISTS[k];
+  const q   = document.getElementById(MS_IDS[k].inp).value.toLowerCase();
+  const dd  = document.getElementById(MS_IDS[k].dd);
+  const lst = q ? FAMILIAS.filter(x => x.toLowerCase().includes(q)) : FAMILIAS;
   if (!lst.length) { dd.innerHTML = '<div class="ms-none">Sin resultados</div>'; return; }
   dd.innerHTML = lst.map(x => {
-    const chk = MS_SEL[k].has(x) ? 'checked' : '';
-    const id2 = k+'_'+x.replace(/[^a-zA-Z0-9]/g,'_');
-    return `<label class="ms-opt"><input type="checkbox" id="${id2}" ${chk} onchange="msToggle('${k}','${x.replace(/'/g,"\'")}',this.checked)">${x}</label>`;
+    const chk = selFams.has(x) ? 'checked' : '';
+    const id2 = 'fam_'+x.replace(/[^a-zA-Z0-9]/g,'_');
+    return `<label class="ms-opt"><input type="checkbox" id="${id2}" ${chk} onchange="famToggle('${x.replace(/'/g,"\'")}',this.checked)">${x}</label>`;
   }).join('');
 }
-function msToggle(k, val, chk) {
-  if (chk) MS_SEL[k].add(val); else MS_SEL[k].delete(val);
-  msTags(k);
-  if (k === 'fam') { selRubros.clear(); msTags('rub'); }  // limpiar rubros al cambiar familia
+function famToggle(val, chk) {
+  if (chk) selFams.add(val); else selFams.delete(val);
+  // limpiar rubro y marca al cambiar familia
+  selRubros.clear(); msTags('rub');
+  selMarcas.clear(); msTags('marca');
+  msTags('fam');
   render();
 }
 function msTags(k) {
-  const sel = k === 'rub' ? selRubros : MS_SEL[k];
-  const tagsEl = document.getElementById(k === 'rub' ? 'rubTags' : MS_IDS[k].tags);
-  const inpEl  = document.getElementById(k === 'rub' ? 'rubInput' : MS_IDS[k].inp);
-  tagsEl.innerHTML = [...sel].map(x =>
+  let sel, tagsId, inpId, filterFn;
+  if (k === 'fam')   { sel = selFams;   tagsId = 'famTags';   inpId = 'famInput';   filterFn = () => msFilter('fam'); }
+  if (k === 'rub')   { sel = selRubros; tagsId = 'rubTags';   inpId = 'rubInput';   filterFn = msFilterRub; }
+  if (k === 'marca') { sel = selMarcas; tagsId = 'marcaTags'; inpId = 'marcaInput'; filterFn = msFilterMarca; }
+  document.getElementById(tagsId).innerHTML = [...sel].map(x =>
     `<span class="ms-tag">${x}<button onclick="msRemove('${k}','${x.replace(/'/g,"\'")}')">×</button></span>`
   ).join('');
-  inpEl.value = '';
-  if (k === 'rub') msFilterRub(); else msFilter(k);
+  document.getElementById(inpId).value = '';
+  filterFn();
 }
 function msRemove(k, val) {
-  if (k === 'rub') selRubros.delete(val); else MS_SEL[k].delete(val);
+  if (k === 'fam') selFams.delete(val);
+  else if (k === 'rub') selRubros.delete(val);
+  else if (k === 'marca') selMarcas.delete(val);
   msTags(k);
+  render();
+}
+
+// ── Multi-select Marca (dinámico: solo marcas con stock en filtros activos) ────
+function marcasDisponibles() {
+  // Marcas que aparecen en SKUs con stock, filtradas por familia/rubro activos
+  const seen = new Set();
+  SKUS.forEach(s => {
+    if (selFams.size > 0 && !selFams.has(s.fam||'')) return;
+    if (selRubros.size > 0 && !selRubros.has(s.rubro)) return;
+    if (selTotal(s) === 0) return;
+    if (s.marca && s.marca !== 'SIN MARCA') seen.add(s.marca);
+  });
+  return [...seen].sort((a,b) => a.localeCompare(b,'es'));
+}
+function msOpenMarca() {
+  document.getElementById('marcaDd').classList.add('open');
+  msFilterMarca();
+}
+function msFilterMarca() {
+  const q   = document.getElementById('marcaInput').value.toLowerCase();
+  const dd  = document.getElementById('marcaDd');
+  const lst = marcasDisponibles().filter(x => !q || x.toLowerCase().includes(q));
+  if (!lst.length) { dd.innerHTML = '<div class="ms-none">Sin marcas con stock</div>'; return; }
+  dd.innerHTML = lst.map(x => {
+    const chk = selMarcas.has(x) ? 'checked' : '';
+    const id2 = 'mc_'+x.replace(/[^a-zA-Z0-9]/g,'_');
+    return `<label class="ms-opt"><input type="checkbox" id="${id2}" ${chk} onchange="marcaToggle('${x.replace(/'/g,"\'")}',this.checked)">${x}</label>`;
+  }).join('');
+}
+function marcaToggle(val, chk) {
+  if (chk) selMarcas.add(val); else selMarcas.delete(val);
+  msTags('marca');
   render();
 }
 
@@ -367,11 +402,9 @@ function rubToggle(val, chk) {
 
 // Cerrar dropdowns al click fuera
 document.addEventListener('click', e => {
-  if (!document.getElementById('rubWrap').contains(e.target))
-    document.getElementById('rubDd').classList.remove('open');
-  Object.values(MS_IDS).forEach(ids => {
-    if (!document.getElementById(ids.wrap).contains(e.target))
-      document.getElementById(ids.dd).classList.remove('open');
+  [['rubWrap','rubDd'],['marcaWrap','marcaDd'],['famWrap','famDd']].forEach(([w,d]) => {
+    if (!document.getElementById(w).contains(e.target))
+      document.getElementById(d).classList.remove('open');
   });
 });
 
@@ -406,25 +439,31 @@ function toggleAllDep() {
 }
 
 // ── Header de la tabla ────────────────────────────────────────────────────────
-function buildHeader() {
-  const activeDeps = DEPS.filter(d => selDeps.has(d.key));
-  const totalCols  = 1 + 1 + activeDeps.length; // rubro + total + deps
+let _renderedDeps = [];  // deps actualmente mostrados (puede ser subset de selDeps)
+
+function buildHeader(deps) {
+  _renderedDeps = deps || DEPS.filter(d => selDeps.has(d.key));
   const ths = `
     <th class="th-rub" onclick="sortBy('rubro')">Rubro <span class="si"></span></th>
     <th class="num th-tot" onclick="sortBy('total')">Total <span class="si"></span></th>
-    ${activeDeps.map(d => `<th class="num" onclick="sortBy('${d.key}')" title="${d.key}">${d.name} <span class="si"></span></th>`).join('')}
+    ${_renderedDeps.map(d => `<th class="num" onclick="sortBy('${d.key}')" title="${d.key}">${d.name} <span class="si"></span></th>`).join('')}
   `;
   document.getElementById('tHead').innerHTML = `<tr>${ths}</tr>`;
-  // actualizar indicadores de orden
   syncHeaderSort();
 }
 function syncHeaderSort() {
-  const ths = document.querySelectorAll('#tHead th');
-  const keys = ['rubro','total',...DEPS.filter(d=>selDeps.has(d.key)).map(d=>d.key)];
+  const ths  = document.querySelectorAll('#tHead th');
+  const keys = ['rubro','total',..._renderedDeps.map(d=>d.key)];
   ths.forEach((th,i) => {
     th.classList.remove('asc','desc');
     if(keys[i]===sortCol) th.classList.add(sortAsc?'asc':'desc');
   });
+}
+
+// Deps seleccionados que tienen stock > 0 en el array de filas dado
+function depsConStock(rows) {
+  const activos = DEPS.filter(d => selDeps.has(d.key));
+  return activos.filter(d => rows.some(r => (r[d.key]||0) > 0));
 }
 
 // ── Utilidades ────────────────────────────────────────────────────────────────
@@ -486,9 +525,10 @@ function render() {
     return sortAsc ? va-vb : vb-va;
   });
   currentRubs = rubros;
-  syncHeaderSort();
 
-  const activeDeps = DEPS.filter(d => selDeps.has(d.key));
+  const activeDeps = depsConStock(rubros);
+  buildHeader(activeDeps);
+
   const body = document.getElementById('tBody');
   if (!rubros.length) {
     body.innerHTML = '<tr><td colspan="50" class="no-data">Sin rubros para el filtro seleccionado</td></tr>';
@@ -524,7 +564,6 @@ ${isExp ? buildSkuTable(r.rubro) : ''}`;
 }
 
 function renderSkuSearch(qP, famF, rubF, marF) {
-  const activeDeps = DEPS.filter(d => selDeps.has(d.key));
   const matches = SKUS.filter(s => {
     if (!(s.sku+s.desc+s.modelo).toLowerCase().includes(qP)) return false;
     if (famF && !famF.has(s.fam||'')) return false;
@@ -533,6 +572,9 @@ function renderSkuSearch(qP, famF, rubF, marF) {
     // Solo mostrar SKUs con stock en al menos un dep seleccionado
     return selTotal(s) > 0;
   }).sort((a,b) => selTotal(b) - selTotal(a)).slice(0, 500);
+
+  const activeDeps = depsConStock(matches);
+  buildHeader(activeDeps);
 
   const body = document.getElementById('tBody');
   if (!matches.length) {
@@ -557,23 +599,21 @@ function renderSkuSearch(qP, famF, rubF, marF) {
   // Cards en modo búsqueda
   const total = matches.reduce((a,s)=>a+selTotal(s),0);
   document.getElementById('cTotal').textContent    = fmt(total);
-  document.getElementById('cTotalSub').textContent = 'unidades en sucursales seleccionadas';
+  document.getElementById('cTotalSub').textContent = 'unidades en sucursales con stock';
   document.getElementById('cSkus').textContent     = fmt(matches.length);
   document.getElementById('cSkusSub').textContent  = 'productos encontrados';
   document.getElementById('cRubros').textContent   = new Set(matches.map(s=>s.rubro)).size;
-  const depSums = {};
-  activeDeps.forEach(d => { depSums[d.key] = matches.reduce((a,s)=>a+(s[d.key]||0),0); });
-  const topDep = [...activeDeps].sort((a,b)=>(depSums[b.key]||0)-(depSums[a.key]||0))[0];
-  document.getElementById('cTop').textContent    = topDep ? fmt(depSums[topDep.key]) : '—';
-  document.getElementById('cTopSub').textContent = topDep ? topDep.name : '';
+  const depSumsS = {};
+  activeDeps.forEach(d => { depSumsS[d.key] = matches.reduce((a,s)=>a+(s[d.key]||0),0); });
+  const topDepS = [...activeDeps].sort((a,b)=>(depSumsS[b.key]||0)-(depSumsS[a.key]||0))[0];
+  document.getElementById('cTop').textContent    = topDepS ? fmt(depSumsS[topDepS.key]) : '—';
+  document.getElementById('cTopSub').textContent = topDepS ? topDepS.name : '';
 }
 
 function buildSkuTable(rubro) {
   const uid = 'sku_' + rubro.replace(/[^a-zA-Z0-9]/g,'_');
-  const activeDeps = DEPS.filter(d => selDeps.has(d.key));
-  const depHeaders = activeDeps.map(d =>
-    `<th class="num" onclick="sortSkuBy('${d.key}','${uid}')" title="${d.key}">${d.name} <span class="si"></span></th>`
-  ).join('');
+  // Los headers se renderizan vacíos; renderSkuBody los reconstruye con los deps correctos
+  const depHeaders = '';
   return `<tr class="sku-cont"><td colspan="50">
   <div class="sku-inner">
     <div class="sku-search-row">
@@ -615,7 +655,7 @@ function renderSkuBody(uid) {
   }) : skus;
 
   const q  = (document.getElementById(uid+'_q')||{}).value?.toLowerCase()||'';
-  const activeDeps = DEPS.filter(d => selDeps.has(d.key));
+  const activeDeps = depsConStock(filteredSkus);
   const SKU_COLS_ORD = ['desc','sku','total',...activeDeps.map(d=>d.key)];
 
   currentSkus = filteredSkus;
@@ -629,6 +669,15 @@ function renderSkuBody(uid) {
 
   const tbl = document.getElementById(uid);
   if (tbl) {
+    // Reconstruir thead con solo los deps con stock
+    const depThs = activeDeps.map(d =>
+      `<th class="num" onclick="sortSkuBy('${d.key}','${uid}')" title="${d.key}">${d.name} <span class="si"></span></th>`
+    ).join('');
+    tbl.querySelector('thead tr').innerHTML =
+      `<th class="sk-rub" onclick="sortSkuBy('desc','${uid}')">Descripcion <span class="si"></span></th>
+       <th onclick="sortSkuBy('sku','${uid}')">Codigo <span class="si"></span></th>
+       <th class="num" onclick="sortSkuBy('total','${uid}')">Total <span class="si"></span></th>
+       ${depThs}`;
     tbl.querySelectorAll('thead th').forEach((th,i) => {
       th.classList.remove('asc','desc');
       if (SKU_COLS_ORD[i] === skuSortCol) th.classList.add(skuSortAsc?'asc':'desc');
@@ -710,7 +759,9 @@ initDepPanel();
 buildHeader();
 
 // Inicializar multi-selects
-['fam','marca'].forEach(k => msFilter(k));
+msFilter('fam');
+msFilterRub();
+msFilterMarca();
 
 render();
 </script>
