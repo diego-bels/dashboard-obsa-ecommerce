@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cambios de Costos - OBSA</title>
+<meta name="theme-color" content="#0f3460">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+  color: white; padding: 20px 30px;
+}
+header h1 { font-size: 1.4rem; font-weight: 600; }
+header p  { font-size: 0.8rem; opacity: 0.7; margin-top: 3px; }
+
+/* Tabs */
+.tabs {
+  background: white; border-bottom: 2px solid #e8ecf0;
+  display: flex; padding: 0 30px; gap: 4px;
+}
+.tab {
+  padding: 12px 22px; font-size: 0.85rem; font-weight: 600;
+  border: none; background: none; cursor: pointer; color: #666;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: all 0.15s;
+}
+.tab:hover { color: #0f3460; }
+.tab.active { color: #0f3460; border-bottom-color: #0f3460; }
+.tab-badge {
+  display: inline-block; background: #ef4444; color: white;
+  border-radius: 10px; font-size: 0.65rem; padding: 1px 6px;
+  margin-left: 6px; font-weight: 700; vertical-align: middle;
+}
+.tab-badge.green { background: #06d6a0; color: #1a1a2e; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Filters */
+.filters {
+  background: white; padding: 14px 30px;
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px;
+  border-bottom: 2px solid #e8ecf0; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.fg { display: flex; flex-direction: column; gap: 5px; }
+.fg label { font-size: 0.7rem; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+.fg select, .fg input[type=text] {
+  padding: 7px 10px; border: 1.5px solid #d0d7de; border-radius: 6px;
+  font-size: 0.85rem; outline: none; background: white;
+}
+.fg select:focus, .fg input:focus { border-color: #0f3460; }
+.btn-clear {
+  padding: 7px 16px; background: #6b7280; color: white;
+  border: none; border-radius: 6px; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer;
+}
+.btn-clear:hover { background: #4b5563; }
+
+/* Cards */
+.summary { display: flex; flex-wrap: wrap; gap: 14px; padding: 18px 30px; }
+.card {
+  background: white; border-radius: 10px; padding: 14px 20px;
+  flex: 1; min-width: 140px; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border-left: 4px solid #ccc;
+}
+.card.c-blue   { border-color: #3a86ff; }
+.card.c-red    { border-color: #ef4444; }
+.card.c-green  { border-color: #06d6a0; }
+.card.c-orange { border-color: #ffbe0b; }
+.card.c-purple { border-color: #7c3aed; }
+.c-lbl { font-size: 0.68rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+.c-val { font-size: 1.5rem; font-weight: 700; margin-top: 3px; }
+.c-sub { font-size: 0.72rem; color: #aaa; margin-top: 2px; }
+
+/* Tabla */
+.table-wrap { padding: 0 30px 30px; overflow-x: auto; }
+table {
+  width: 100%; border-collapse: collapse; background: white;
+  border-radius: 10px; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08); font-size: 0.84rem;
+}
+thead tr { background: #1a1a2e; color: white; }
+th {
+  padding: 10px 13px; text-align: left; font-weight: 600;
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px;
+  cursor: pointer; user-select: none; white-space: nowrap;
+}
+th:hover { background: #0f3460; }
+th .si { margin-left: 3px; opacity: 0.4; font-size: 0.65rem; }
+th.asc  .si::after { content: '▲'; opacity: 1; }
+th.desc .si::after { content: '▼'; opacity: 1; }
+th:not(.asc):not(.desc) .si::after { content: '⇅'; }
+tbody tr:nth-child(even) { background: #f7f9fc; }
+tbody tr:hover { background: #dbeafe; }
+td { padding: 9px 13px; border-bottom: 1px solid #eee; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.bold { font-weight: 700; }
+
+.pct-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 10px;
+  font-size: 0.78rem; font-weight: 700; white-space: nowrap;
+}
+.pct-up   { background: #fee2e2; color: #991b1b; }
+.pct-down { background: #dcfce7; color: #166534; }
+
+.no-data { text-align: center; padding: 50px; color: #aaa; font-size: 0.9rem; }
+.fecha-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 10px;
+  background: #e8eaf6; color: #3730a3; font-size: 0.72rem; font-weight: 600;
+}
+@media(max-width:600px) {
+  .filters, .summary, .table-wrap { padding-left: 14px; padding-right: 14px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Cambios de Costos de Reposición</h1>
+  <p>OBSA &mdash; Actualizado: 2026-07-06 &mdash; Comparado contra: —</p>
+</header>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('hoy')">
+    Cambios de Hoy
+    <span class="tab-badge green" id="badgeHoy">0</span>
+  </button>
+  <button class="tab" onclick="showTab('hist')">
+    Historial (90 días)
+    <span class="tab-badge green" id="badgeHist">0</span>
+  </button>
+</div>
+
+<!-- ═══════════════════════ TAB HOY ═══════════════════════ -->
+<div class="tab-content active" id="tab-hoy">
+
+  <div class="summary">
+    <div class="card c-blue">
+      <div class="c-lbl">Cambios hoy</div>
+      <div class="c-val">0</div>
+      <div class="c-sub">productos modificados</div>
+    </div>
+    <div class="card c-red">
+      <div class="c-lbl">Subas</div>
+      <div class="c-val">0</div>
+      <div class="c-sub">costo aumentó</div>
+    </div>
+    <div class="card c-green">
+      <div class="c-lbl">Bajas</div>
+      <div class="c-val">0</div>
+      <div class="c-sub">costo bajó</div>
+    </div>
+    <div class="card c-orange">
+      <div class="c-lbl">Variación promedio</div>
+      <div class="c-val">0%</div>
+      <div class="c-sub">en valor absoluto</div>
+    </div>
+  </div>
+
+  <div class="filters" id="filtersHoy">
+    <div class="fg">
+      <label>Buscar</label>
+      <input type="text" id="qHoy" placeholder="SKU o descripción..." oninput="renderHoy()" style="width:220px">
+    </div>
+    <div class="fg">
+      <label>Familia</label>
+      <select id="famHoy" onchange="renderHoy()"><option value="">Todas</option></select>
+    </div>
+    <div class="fg">
+      <label>Rubro</label>
+      <select id="rubHoy" onchange="renderHoy()"><option value="">Todos</option></select>
+    </div>
+    <div class="fg">
+      <label>Variación</label>
+      <select id="dirHoy" onchange="renderHoy()">
+        <option value="">Todas</option>
+        <option value="up">Solo subas</option>
+        <option value="down">Solo bajas</option>
+      </select>
+    </div>
+    <div class="fg" style="justify-content:flex-end">
+      <label>&nbsp;</label>
+      <button class="btn-clear" onclick="limpiarHoy()">✕ Limpiar</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="tHoy">
+      <thead><tr>
+        <th onclick="sortHoy('sku')">SKU <span class="si"></span></th>
+        <th onclick="sortHoy('desc')">Descripción <span class="si"></span></th>
+        <th onclick="sortHoy('rubro')">Rubro <span class="si"></span></th>
+        <th onclick="sortHoy('marca')">Marca <span class="si"></span></th>
+        <th class="num" onclick="sortHoy('c_ant')">Costo Anterior <span class="si"></span></th>
+        <th class="num" onclick="sortHoy('c_nue')">Costo Nuevo <span class="si"></span></th>
+        <th class="num" onclick="sortHoy('pct')">Variación <span class="si"></span></th>
+        <th class="num" onclick="sortHoy('ult')">Ult. Compra <span class="si"></span></th>
+      </tr></thead>
+      <tbody id="bodyHoy"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════ TAB HISTORIAL ═══════════════════════ -->
+<div class="tab-content" id="tab-hist">
+
+  <div class="filters">
+    <div class="fg">
+      <label>Buscar</label>
+      <input type="text" id="qHist" placeholder="SKU o descripción..." oninput="renderHist()" style="width:220px">
+    </div>
+    <div class="fg">
+      <label>Fecha</label>
+      <select id="fechaHist" onchange="renderHist()"><option value="">Todas</option></select>
+    </div>
+    <div class="fg">
+      <label>Familia</label>
+      <select id="famHist" onchange="renderHist()"><option value="">Todas</option></select>
+    </div>
+    <div class="fg">
+      <label>Rubro</label>
+      <select id="rubHist" onchange="renderHist()"><option value="">Todos</option></select>
+    </div>
+    <div class="fg">
+      <label>Variación</label>
+      <select id="dirHist" onchange="renderHist()">
+        <option value="">Todas</option>
+        <option value="up">Solo subas</option>
+        <option value="down">Solo bajas</option>
+      </select>
+    </div>
+    <div class="fg" style="justify-content:flex-end">
+      <label>&nbsp;</label>
+      <button class="btn-clear" onclick="limpiarHist()">✕ Limpiar</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="tHist">
+      <thead><tr>
+        <th onclick="sortHist('fecha')">Fecha <span class="si"></span></th>
+        <th onclick="sortHist('sku')">SKU <span class="si"></span></th>
+        <th onclick="sortHist('desc')">Descripción <span class="si"></span></th>
+        <th onclick="sortHist('rubro')">Rubro <span class="si"></span></th>
+        <th onclick="sortHist('marca')">Marca <span class="si"></span></th>
+        <th class="num" onclick="sortHist('c_ant')">Costo Anterior <span class="si"></span></th>
+        <th class="num" onclick="sortHist('c_nue')">Costo Nuevo <span class="si"></span></th>
+        <th class="num" onclick="sortHist('pct')">Variación <span class="si"></span></th>
+      </tr></thead>
+      <tbody id="bodyHist"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const HOY      = [];
+const HIST     = [];
+const FAMILIAS = [];
+const RUBROS   = [];
+const FECHAS   = [];
+
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ── Utilidades ────────────────────────────────────────────────────────────────
+function fmt(n)  { return n != null ? '$ ' + Math.round(n).toLocaleString('es-AR') : '—'; }
+function fmtP(n) {
+  const cls = n > 0 ? 'pct-up' : 'pct-down';
+  const sign = n > 0 ? '+' : '';
+  return `<span class="pct-badge ${cls}">${sign}${n.toFixed(1)}%</span>`;
+}
+function fmtF(f) { return f ? f.split('-').reverse().join('/') : '—'; }
+
+// ── Render Hoy ────────────────────────────────────────────────────────────────
+let hSortCol = 'pct', hSortAsc = false;
+const H_COLS = ['sku','desc','rubro','marca','c_ant','c_nue','pct','ult'];
+
+function renderHoy() {
+  const q   = (document.getElementById('qHoy').value || '').toLowerCase();
+  const fam = document.getElementById('famHoy').value;
+  const rub = document.getElementById('rubHoy').value;
+  const dir = document.getElementById('dirHoy').value;
+
+  let rows = HOY.filter(r => {
+    if (q && !(r.sku+r.desc).toLowerCase().includes(q)) return false;
+    if (fam && r.familia !== fam) return false;
+    if (rub && r.rubro   !== rub) return false;
+    if (dir === 'up'   && r.pct <= 0) return false;
+    if (dir === 'down' && r.pct >= 0) return false;
+    return true;
+  });
+  rows.sort((a,b) => {
+    const va = a[hSortCol]??'', vb = b[hSortCol]??'';
+    if (typeof va === 'string') return hSortAsc ? va.localeCompare(vb,'es') : vb.localeCompare(va,'es');
+    return hSortAsc ? va-vb : vb-va;
+  });
+
+  document.querySelectorAll('#tHoy thead th').forEach((th,i) => {
+    th.classList.remove('asc','desc');
+    if (H_COLS[i] === hSortCol) th.classList.add(hSortAsc?'asc':'desc');
+  });
+
+  const body = document.getElementById('bodyHoy');
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="8" class="no-data">${HOY.length === 0 ? 'Sin cambios detectados hoy.' : 'Sin resultados para el filtro.'}</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(r => `<tr>
+    <td>${r.sku}</td>
+    <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.desc}">${r.desc}</td>
+    <td>${r.rubro}</td>
+    <td>${r.marca}</td>
+    <td class="num">${fmt(r.c_ant)}</td>
+    <td class="num bold">${fmt(r.c_nue)}</td>
+    <td class="num">${fmtP(r.pct)}</td>
+    <td class="num">${r.ult != null ? fmt(r.ult) : '<span style="color:#ccc">—</span>'}</td>
+  </tr>`).join('');
+}
+
+function sortHoy(col) {
+  if (hSortCol === col) hSortAsc = !hSortAsc;
+  else { hSortCol = col; hSortAsc = (col === 'sku' || col === 'desc' || col === 'rubro' || col === 'marca'); }
+  renderHoy();
+}
+function limpiarHoy() {
+  document.getElementById('qHoy').value = '';
+  document.getElementById('famHoy').value = '';
+  document.getElementById('rubHoy').value = '';
+  document.getElementById('dirHoy').value = '';
+  renderHoy();
+}
+
+// ── Render Historial ──────────────────────────────────────────────────────────
+let hiSortCol = 'fecha', hiSortAsc = false;
+const HI_COLS = ['fecha','sku','desc','rubro','marca','c_ant','c_nue','pct'];
+
+function renderHist() {
+  const q     = (document.getElementById('qHist').value || '').toLowerCase();
+  const fecha = document.getElementById('fechaHist').value;
+  const fam   = document.getElementById('famHist').value;
+  const rub   = document.getElementById('rubHist').value;
+  const dir   = document.getElementById('dirHist').value;
+
+  let rows = HIST.filter(r => {
+    if (q     && !(r.sku+r.desc).toLowerCase().includes(q)) return false;
+    if (fecha && r.fecha   !== fecha) return false;
+    if (fam   && r.familia !== fam)   return false;
+    if (rub   && r.rubro   !== rub)   return false;
+    if (dir === 'up'   && r.pct <= 0) return false;
+    if (dir === 'down' && r.pct >= 0) return false;
+    return true;
+  });
+  rows.sort((a,b) => {
+    const va = a[hiSortCol]??'', vb = b[hiSortCol]??'';
+    if (typeof va === 'string') return hiSortAsc ? va.localeCompare(vb,'es') : vb.localeCompare(va,'es');
+    return hiSortAsc ? va-vb : vb-va;
+  });
+
+  document.querySelectorAll('#tHist thead th').forEach((th,i) => {
+    th.classList.remove('asc','desc');
+    if (HI_COLS[i] === hiSortCol) th.classList.add(hiSortAsc?'asc':'desc');
+  });
+
+  const body = document.getElementById('bodyHist');
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="8" class="no-data">Sin registros en el historial.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(r => `<tr>
+    <td><span class="fecha-badge">${fmtF(r.fecha)}</span></td>
+    <td>${r.sku}</td>
+    <td style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.desc}">${r.desc}</td>
+    <td>${r.rubro}</td>
+    <td>${r.marca}</td>
+    <td class="num">${fmt(r.c_ant)}</td>
+    <td class="num bold">${fmt(r.c_nue)}</td>
+    <td class="num">${fmtP(r.pct)}</td>
+  </tr>`).join('');
+}
+
+function sortHist(col) {
+  if (hiSortCol === col) hiSortAsc = !hiSortAsc;
+  else { hiSortCol = col; hiSortAsc = (col !== 'fecha' && typeof HIST[0]?.[col] === 'string'); }
+  renderHist();
+}
+function limpiarHist() {
+  document.getElementById('qHist').value = '';
+  document.getElementById('fechaHist').value = '';
+  document.getElementById('famHist').value = '';
+  document.getElementById('rubHist').value = '';
+  document.getElementById('dirHist').value = '';
+  renderHist();
+}
+
+// ── Inicializar selects ───────────────────────────────────────────────────────
+function initSelects() {
+  const famOpts  = FAMILIAS.map(f => `<option value="${f}">${f}</option>`).join('');
+  const rubOpts  = RUBROS.map(r => `<option value="${r}">${r}</option>`).join('');
+  const fechOpts = FECHAS.map(f => `<option value="${f}">${fmtF(f)}</option>`).join('');
+
+  // Hoy
+  const famHoyEl = document.getElementById('famHoy');
+  const rubHoyEl = document.getElementById('rubHoy');
+  if (famHoyEl) {
+    const famHoy = [...new Set(HOY.map(r=>r.familia).filter(Boolean))].sort();
+    famHoyEl.innerHTML = '<option value="">Todas</option>' + famHoy.map(f=>`<option value="${f}">${f}</option>`).join('');
+  }
+  if (rubHoyEl) {
+    const rubHoy = [...new Set(HOY.map(r=>r.rubro).filter(Boolean))].sort();
+    rubHoyEl.innerHTML = '<option value="">Todos</option>' + rubHoy.map(r=>`<option value="${r}">${r}</option>`).join('');
+  }
+
+  // Historial
+  document.getElementById('fechaHist').innerHTML = '<option value="">Todas</option>' + fechOpts;
+  document.getElementById('famHist').innerHTML   = '<option value="">Todas</option>' + famOpts;
+  document.getElementById('rubHist').innerHTML   = '<option value="">Todos</option>' + rubOpts;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+initSelects();
+renderHoy();
+renderHist();
+</script>
+</body>
+</html>
