@@ -270,12 +270,12 @@
     <div class="filter-group">
       <label>Canales</label>
       <div class="canal-checks">
-        <label><input type="checkbox" value="ML" checked> ML</label>
-        <label><input type="checkbox" value="BNA" checked> BNA</label>
-        <label><input type="checkbox" value="OBSA" checked> OBSA Web</label>
+        <label><input type="checkbox" value="ML" checked onchange="aplicar()"> ML</label>
+        <label><input type="checkbox" value="BNA" checked onchange="aplicar()"> BNA</label>
+        <label><input type="checkbox" value="OBSA" checked onchange="aplicar()"> OBSA Web</label>
       </div>
     </div>
-    <button class="btn" onclick="aplicar()" style="margin-bottom:1px">Actualizar</button>
+
   </div>
   <!-- Fila 2: Familia + Rubro + Marca -->
   <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;width:100%;">
@@ -365,7 +365,7 @@ function filtrarMarcas() {
 
 function renderDropdown(q) {
   const dd = document.getElementById('marcaDropdown');
-  const filtered = q ? MARCAS.filter(m => m.toLowerCase().includes(q)) : MARCAS;
+  const filtered = q ? marcasFiltradas.filter(m => m.toLowerCase().includes(q)) : marcasFiltradas;
   if (!filtered.length) {
     dd.innerHTML = '<div class="marca-none">Sin resultados</div>';
     return;
@@ -384,6 +384,7 @@ function toggleMarca(marca, checked) {
   if (checked) selectedMarcas.add(marca);
   else selectedMarcas.delete(marca);
   renderTags();
+  aplicar();
 }
 
 function renderTags() {
@@ -400,6 +401,7 @@ function quitarMarca(marca) {
   selectedMarcas.delete(marca);
   renderTags();
   filtrarMarcas();
+  aplicar();
 }
 
 // ── Widget multi-select Familia ───────────────────────────────────────────────
@@ -426,6 +428,8 @@ function renderFamiliaDropdown(q) {
 function toggleFamilia(fam, checked) {
   if (checked) selectedFamilias.add(fam); else selectedFamilias.delete(fam);
   renderFamiliaTags();
+  actualizarMarcasFiltradas();
+  aplicar();
 }
 function renderFamiliaTags() {
   const tags = document.getElementById('familiaTags');
@@ -435,7 +439,7 @@ function renderFamiliaTags() {
   document.getElementById('familiaSearchInput').value = '';
   filtrarFamilias();
 }
-function quitarFamilia(fam) { selectedFamilias.delete(fam); renderFamiliaTags(); filtrarFamilias(); }
+function quitarFamilia(fam) { selectedFamilias.delete(fam); renderFamiliaTags(); filtrarFamilias(); actualizarMarcasFiltradas(); aplicar(); }
 
 // Indices precalculados
 const stockRubMap = {};
@@ -450,6 +454,33 @@ SSKU.forEach(s => {
   if (!stockSkuMap[s.Rubro]) stockSkuMap[s.Rubro] = [];
   stockSkuMap[s.Rubro].push(s);
 });
+
+// Mapa familia → marcas (para filtro en cascada)
+const famMarcaSet = {};
+SSKU.forEach(s => {
+  const fam = rubFamiliaMap[s.Rubro] || '';
+  if (fam && s.marca) {
+    if (!famMarcaSet[fam]) famMarcaSet[fam] = new Set();
+    famMarcaSet[fam].add(s.marca);
+  }
+});
+let marcasFiltradas = [...MARCAS];
+
+function actualizarMarcasFiltradas() {
+  if (selectedFamilias.size === 0) {
+    marcasFiltradas = [...MARCAS];
+  } else {
+    const allowed = new Set();
+    selectedFamilias.forEach(fam => {
+      if (famMarcaSet[fam]) famMarcaSet[fam].forEach(m => allowed.add(m));
+    });
+    // Quitar marcas seleccionadas que ya no pertenecen a la familia elegida
+    selectedMarcas.forEach(m => { if (!allowed.has(m)) selectedMarcas.delete(m); });
+    marcasFiltradas = MARCAS.filter(m => allowed.has(m));
+  }
+  renderTags();
+  filtrarMarcas();
+}
 
 let sortCol = 'uds_total', sortAsc = false;
 let currentData = [];
