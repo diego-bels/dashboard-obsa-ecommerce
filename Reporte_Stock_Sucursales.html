@@ -15,7 +15,8 @@ body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e;
 
 header {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
-  color: white; padding: 20px 30px; display: flex; align-items: center; gap: 18px;
+  color: white; padding: 20px 30px; display: flex; align-items: center;
+  gap: 18px; flex-wrap: wrap;
 }
 header h1 { font-size: 1.4rem; font-weight: 600; }
 header p  { font-size: 0.8rem; opacity: 0.7; margin-top: 3px; }
@@ -34,7 +35,7 @@ header p  { font-size: 0.8rem; opacity: 0.7; margin-top: 3px; }
 .fg input[type=text]:focus { border-color: #0f3460; }
 
 /* multi-select */
-.ms-wrap { position: relative; min-width: 190px; }
+.ms-wrap { position: relative; min-width: 190px; flex: 1; }
 .ms-row {
   display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
   padding: 5px 8px; border: 1.5px solid #d0d7de; border-radius: 6px;
@@ -161,7 +162,9 @@ table.sku-t td.tot-c { font-weight: 700; color: #0f3460; }
 /* sucursal selector */
 .dep-panel {
   background: white; border-bottom: 2px solid #e8ecf0;
-  padding: 10px 30px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 10px 30px; display: flex; align-items: center; gap: 8px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  flex-wrap: wrap;
 }
 .dep-panel span { font-size: 0.72rem; font-weight: 700; color: #666; text-transform: uppercase; white-space: nowrap; }
 .dep-btn {
@@ -174,8 +177,32 @@ table.sku-t td.tot-c { font-weight: 700; color: #0f3460; }
 .dep-btn-all { background: #e8eaf6; color: #0f3460; border-color: #e8eaf6; }
 .dep-btn-all:hover { background: #c5cae9; }
 
+@media(max-width:768px) {
+  .filters, .summary, .table-outer { padding-left: 20px; padding-right: 20px; }
+  .dep-panel { padding-left: 20px; padding-right: 20px; }
+  .card { min-width: calc(50% - 7px); flex: 0 0 calc(50% - 7px); }
+  .ms-wrap { min-width: 0; }
+}
 @media(max-width:600px) {
-  .filters, .summary, .table-outer, .dep-panel { padding-left: 14px; padding-right: 14px; }
+  header { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 6px; }
+  header h1 { font-size: 1.1rem; }
+  .filters { padding: 10px 14px; gap: 8px; }
+  .fg { width: 100%; }
+  .fg input[type=text] { width: 100%; }
+  .ms-wrap { min-width: 0; width: 100%; }
+  .btn { width: 100%; }
+  .dep-panel { padding: 8px 14px; flex-wrap: nowrap; overflow-x: auto; }
+  .dep-panel span { display: none; }
+  .summary { padding: 12px 14px; gap: 10px; }
+  .card { min-width: calc(50% - 5px); flex: 0 0 calc(50% - 5px); padding: 12px 14px; }
+  .c-val { font-size: 1.3rem; }
+  .table-outer { padding: 0 0 20px; }
+  table.main { font-size: 0.76rem; }
+  table.main th, table.main td { padding: 7px 9px; }
+  td.td-rub { min-width: 140px; }
+  th.th-rub { min-width: 140px; }
+  .sku-search-row input { width: 100%; }
+  .sku-inner { padding: 6px 10px 10px; }
 }
 </style>
 </head>
