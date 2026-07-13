@@ -647,8 +647,8 @@ function aplicar() {
     r.pTotal += t.pesos;
     r.canalesV[t.canal] = (r.canalesV[t.canal]||0) + t.unidades;
     if (t.provincia) r.provinciasV[t.provincia] = (r.provinciasV[t.provincia]||0) + t.unidades;
-    if (t.cuotas > 0) {
-      const cKey = t.cuotas + 'c';
+    {
+      const cKey = (t.cuotas||0) + 'c';
       r.cuotas[cKey] = (r.cuotas[cKey]||0) + t.unidades;
     }
   });
@@ -797,7 +797,25 @@ function abrirPopup(sku) {
        </tr></thead>
        <tbody>${pEntries.map(filaProv).join('')}</tbody>
        </table></div>`
-    : '<p style="color:#aaa;font-size:0.82rem;margin-top:12px;font-style:italic">Sin datos de provincia (solo BNA incluye provincia)</p>';
+    : '<p style="color:#aaa;font-size:0.82rem;margin-top:12px;font-style:italic">Sin datos de provincia disponibles</p>';
+
+  const fmtCuota = n => {
+    if (n === 0 || n === 1) return 'Sin cuotas';
+    return String(n).padStart(2,'0') + ' CSI';
+  };
+  const cEntries2 = Object.entries(r.cuotas||{})
+    .map(([k,u]) => [parseInt(k), u])
+    .sort((a,b) => a[0]-b[0]);
+  const filaCuota = ([n,u]) => `
+    <tr><td style="padding:6px 14px;border-bottom:1px solid #f5f5f5;font-weight:600;color:#0f3460">${fmtCuota(n)}</td>
+    <td style="padding:6px 14px;text-align:right;border-bottom:1px solid #f5f5f5;font-weight:600">${fmt(u)} ud${u>1?'s':''}</td></tr>`;
+  const cuotaSection = cEntries2.length
+    ? `<h4 style="margin:18px 0 8px;font-size:0.78rem;text-transform:uppercase;color:#888;letter-spacing:0.5px;font-weight:700">Tipo de venta</h4>
+       <div style="border-radius:8px;border:1px solid #e8ecf0;overflow:hidden">
+       <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+       <tbody>${cEntries2.map(filaCuota).join('')}</tbody>
+       </table></div>`
+    : '';
 
   document.getElementById('popupTitle').textContent = r.sku + ' — ' + (r.desc || '');
   document.getElementById('popupBody').innerHTML = `
@@ -807,6 +825,7 @@ function abrirPopup(sku) {
     <table style="width:100%;border-collapse:collapse;font-size:0.88rem">
     <tbody>${cEntries.map(filaCanal).join('')}</tbody>
     </table></div>
+    ${cuotaSection}
     ${provSection}`;
   document.getElementById('modal').style.display = 'flex';
 }
