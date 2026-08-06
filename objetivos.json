@@ -6,7 +6,32 @@
   },
   "2026-07": {
     "ml":   { "facturacion": 550000000, "pedidos": 1300 },
-    "bna":  { "facturacion": 50000000 },
+    "bna":  { "facturacion": 40000000 },
     "obsa": { "facturacion": 200000000, "pedidos": 500 }
+  },
+  "2026-08": {
+    "ml":   { "facturacion": 500000000, "pedidos": 1300 },
+    "bna":  { "facturacion": 40000000 },
+    "obsa": { "facturacion": 200000000, "pedidos": 500 }
+  },
+  "2026-09": {
+    "ml":   { "facturacion": 0, "pedidos": 0 },
+    "bna":  { "facturacion": 0 },
+    "obsa": { "facturacion": 0, "pedidos": 0 }
+  },
+  "2026-10": {
+    "ml":   { "facturacion": 0, "pedidos": 0 },
+    "bna":  { "facturacion": 0 },
+    "obsa": { "facturacion": 0, "pedidos": 0 }
+  },
+  "2026-11": {
+    "ml":   { "facturacion": 0, "pedidos": 0 },
+    "bna":  { "facturacion": 0 },
+    "obsa": { "facturacion": 0, "pedidos": 0 }
+  },
+  "2026-12": {
+    "ml":   { "facturacion": 0, "pedidos": 0 },
+    "bna":  { "facturacion": 0 },
+    "obsa": { "facturacion": 0, "pedidos": 0 }
   }
 }
