@@ -15,9 +15,9 @@
     "obsa": { "facturacion": 200000000, "pedidos": 500 }
   },
   "2026-09": {
-    "ml":   { "facturacion": 663000000, "pedidos": 0 },
-    "bna":  { "facturacion": 0 },
-    "obsa": { "facturacion": 200000000, "pedidos": 0 }
+    "ml":   { "facturacion": 663000000, "pedidos": 2000 },
+    "bna":  { "facturacion": 30000000, "pedidos": 60 },
+    "obsa": { "facturacion": 200000000, "pedidos": 400 }
   },
   "2026-10": {
     "ml":   { "facturacion": 0, "pedidos": 0 },
