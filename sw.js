@@ -1,4 +1,4 @@
-﻿const CACHE = 'obsa-v1';
+﻿const CACHE = 'obsa-v3';
 const ASSETS = [
   '/dashboard-obsa-ecommerce/',
   '/dashboard-obsa-ecommerce/index.html',
