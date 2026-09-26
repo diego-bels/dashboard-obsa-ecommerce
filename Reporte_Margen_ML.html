@@ -161,6 +161,30 @@
   </div>
 
   <div class="filter-group">
+    <label>Forma de entrega</label>
+    <div class="ms-wrap" id="entregaWrap">
+      <div class="ms-input-row" onclick="document.getElementById('entregaInp').focus()">
+        <span id="entregaTags"></span>
+        <input type="text" id="entregaInp" class="ms-search-input" placeholder="Buscar..."
+          oninput="filtrarEntregas()" onfocus="abrirEntregas()" autocomplete="off">
+      </div>
+      <div class="ms-dropdown" id="entregaDD"></div>
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <label>Cuotas</label>
+    <div class="ms-wrap" id="cuotaWrap">
+      <div class="ms-input-row" onclick="document.getElementById('cuotaInp').focus()">
+        <span id="cuotaTags"></span>
+        <input type="text" id="cuotaInp" class="ms-search-input" placeholder="Buscar..."
+          oninput="filtrarCuotas()" onfocus="abrirCuotas()" autocomplete="off">
+      </div>
+      <div class="ms-dropdown" id="cuotaDD"></div>
+    </div>
+  </div>
+
+  <div class="filter-group">
     <label>SKU / Descripción</label>
     <input type="text" id="skuQ" class="sku-input" placeholder="Buscar SKU o producto..." oninput="aplicar()">
   </div>
@@ -198,10 +222,18 @@ const VENTAS   = [{"fecha": "2025-06-09", "id": "2000011895454682", "sku": "1146
 const FAMILIAS = ["APARATOS DE GIMNASIA", "AUDIO", "CAMPING Y JARDIN", "CLIMATIZACION", "COLCHONES Y SOMMIERS", "EQUIPAMIENTOS COMERCIALES", "HERRAMIENTAS", "HOGAR", "INFORMATICA", "MUEBLES", "MUEBLES DE OFICINA", "PEQUEÑOS ELECTRODOMESTICOS", "RODADOS", "T.V. / DVD", "TELEFONIA"];
 const RUBROS   = ["ACC. PARA CELULARES", "ACC.COMPUTACION", "ACCESORIOS DE CAMPING", "ACOND. PORTATIL", "ACONDICIONADOR", "AFEITADORA", "ALMOHADA", "ANAFE", "APARATO DE GIMNASIA", "ARTS.VARIOS", "ASPIRADORA", "AURICULAR", "BALANZA", "BALANZA COMERCIAL", "BANQUETA", "BAR", "BATIDORA", "BIBLIOTECA", "BICICLETA", "BOLSA DE DORMIR", "CAFETERA", "CALEFACTOR", "CALEFON", "CALEFON ELECTRICO", "CALOVENTOR", "CAMA", "CAMPANA", "CARPA", "CASCO", "CAVA", "CELULAR LIBRE", "CHIFONIER", "CIRCULADOR", "CLIMATIZADOR", "COCINA", "COLCHON", "COLCHON INFLABLE", "COMODA", "CONSERVADORA", "CONVECTOR", "CORT.CESPED", "CORTABARBA", "CORTADORA DE PELO", "CUBIERTA", "CUCHETA", "CUCHILLO Y CORTADORA", "DEPILADORA", "DISCO RIGIDO INTERNOS/EXTERNOS/SSD", "ESCRITORIO", "ESPEJO", "ESTABILIZADORES Y UPS", "ESTUFA", "EXHIBIDORAS", "EXPRIMIDOR", "FABRIPASTA", "FREEZER", "FREIDORA", "GAZEBOS", "GRILL", "HELADERA CON FREEZER", "HELADERA SIN FREEZER", "HERRAMIENTA", "HIDROLAVADORA", "HORNO", "HORNO ELECTRICO", "HORNO/ANAFE/COCINA", "IMPRESORA", "INSECTOCUTORES", "JUEGO COCINA", "JUEGO COMEDOR", "JUEGO DORMITORIO", "LAVARROPA AUTOMATICO", "LAVARROPA COMUN", "LAVASECARROPA", "LAVAVAJILLA", "LED", "LENERO", "LICUADORA", "LUSTRASPIRADORA", "LUZ DE EMERGENCIA", "MANGUERA", "MAQUINA DE COSER", "MESA", "MESA CENTRO", "MESA DE LUZ", "MESA DE PLANCHAR", "MESA PLASTICA", "MICROFONO", "MICROONDA", "MINIPIMER", "MODULAR", "MONITOR", "MOUSE", "MUEBLE", "NEBULIZADOR", "NOTEBOOK", "OFICINA", "PANCHUQUERA", "PANTALLA INFRARROJA", "PARLANTES BT DE PISO", "PARLANTES PORTATILES BT", "PAVA ELECTRICA", "PETIT MUEBLES", "PICADORA", "PILETA", "PLACARD", "PLANCHA", "PLANCHITA CABELLO", "PROCESADORA", "PURIFICADOR", "RACK", "REPOSERA", "RODADO", "SANDWICHERA", "SECADOR", "SECARROPA", "SILLA", "SILLA PLASTICA", "SILLA Y ESCRITORIO GAMER", "SMARTER/CAPTURADORA/SINTONIZADOR TV", "SMARTWACH Y RELOJES P/CORRER", "SOLDADORA", "SOMBRILLA", "SOMIER", "SOPORTE", "SPLIT", "TABLETS", "TECLADOS", "TENDEDERO", "TENSIOMETRO", "TERMOTANQUE", "TOSTADORA", "TURBO", "VAPORIERA", "VENT.TECHO", "WAFLERA", "YOGURTERA", "ZAPATERA"];
 const MARCAS   = ["AIWA", "ALASKA", "ALBATROZ", "ALLURE", "ALPACA", "AOC", "ASPEN", "ATMA", "ATOMLUX", "BAMBI", "BELLISIMA", "BGH", "BLACK&DECKER", "BOSCH", "CANDY", "CANNON", "CANON", "CARRARO", "CECOTEC", "CODINI", "COLUMBIA", "COVERSOL", "DAEWOO", "DECIBAL", "DESCANSAR", "DEWO", "DOGO", "DOLCE GUSTO", "DREAN", "EINHELL", "ELECTRA", "ELECTROLUX", "EMEGE", "ENOVA", "ENRIQUE", "ESCORIAL", "ESKABE", "EUROCOOK", "FINESTRA", "FLORENCIA", "FREE ACTION", "FUKUOKA", "GAFA", "GAMA", "GEBBWORK", "GENIUS", "GENOUD", "GFAST", "GRAVITY", "GREE", "HERNANDEZ", "HEWLETT PACKARD", "HISENSE", "HITACHI", "INDELPLAS", "INDUCOL", "INELRO", "INFINIX", "INMACOL", "INNOVA", "JOGO", "KANJI", "KANJIBLACK", "KANJIHOME", "KANY", "KAPPESBERG", "KARCHER", "KELVINATOR", "KIT PARANA", "KITCHENAID", "KOH-I-NOOR", "LG", "LILIANA", "LINEA BRASIL", "LOGITECH", "LONGVIE", "LUSQTOFF", "MAXI KING", "MAXIMO", "MICROBELL", "MICROCASE", "MIDEA", "MORELLI", "MOTOROLA", "MOULINEX", "MS", "NATIVA", "NBX", "NEBA", "NESPRESSO", "NEW CEVAL", "NOBLEX", "NUBIA", "ONEBOX", "ORBIS", "OSTER", "OUTDOORS PROFES", "PANORAMIC", "PASTALINDA", "PEABODY", "PELOPINCHO", "PETRI", "PHILCO", "PHILIPS", "PIRELLI", "PLATINUM", "POLITORNO", "PRO BASS", "PROTALIA", "QUALITY PLASTIC", "QUANTUM", "QUINT", "RAINBOW", "RANDERS", "RCA", "REEBOCK", "REEBOK", "RHEEM", "RICHEZE", "RODIN", "ROKU", "S.ANDIRA", "SABELCORT", "SAIAR", "SAMSUNG", "SANSEI", "SEGATE", "SEVERBON", "SEÑORIAL", "SIAM", "SINGER", "SMART TEK", "SMARTLIFE", "SOL DE VERANO", "SPAR", "STROMBERG", "SUAVEGON", "SUAVESTAR", "SUONO", "SURREY", "SYSTEL", "TABLES", "TAS EME", "TCL", "TECNO", "TELEFUNKEN", "TOP MEGA", "ULTRACOMB", "USMAN", "VOLCAN", "VONDOM", "WAGGS", "WESTERN DIGITAL", "WHESTINGHOUSE", "WHIRLPOOL", "WHITENBLACK", "X VIEW", "XIAOMI", "XTRIKE-ME", "YELMO", "ZTE", "iROBOT"];
+const ENTREGAS = ["Acuerdo con el comprador", "Colecta de Mercado Envíos", "Correo y puntos de despacho", "Mercado Envíos 1", "Mercado Envíos Flex", "Mercado Envíos Full"];
+const CUOTAS   = ["S/D", "Sin cuotas", "06 CSI MELI", "09 CSI MELI", "12 CSI MELI"];
 const FMIN = '2025-06-09', FMAX = '2026-09-26';
 
 let sortCol='margen', sortAsc=false, expandedSku=null;
-let selFam=new Set(), selRub=new Set(), selMar=new Set();
+let selFam=new Set(), selRub=new Set(), selMar=new Set(), selEnt=new Set(), selCuo=new Set();
+
+function _cuotaLabel(n) {
+  if(n===0) return 'S/D';
+  if(n===1) return 'Sin cuotas';
+  return String(n).padStart(2,'0')+' CSI MELI';
+}
 
 const fmt  = n => Number(n).toLocaleString('es-AR',{maximumFractionDigits:0});
 const fmtP = n => '$'+fmt(n);
@@ -262,6 +294,8 @@ function aplicar() {
     if (selFam.size && !selFam.has(v.familia)) return false;
     if (selRub.size && !selRub.has(v.rubro))   return false;
     if (selMar.size && !selMar.has(v.marca))   return false;
+    if (selEnt.size && !selEnt.has(v.entrega)) return false;
+    if (selCuo.size && !selCuo.has(_cuotaLabel(v.cuotas))) return false;
     if (q && !v.sku.includes(q) && !v.desc.toLowerCase().includes(q)) return false;
     return true;
   });
@@ -463,16 +497,28 @@ function filtrarMarcas(){msRender('marcaDD',MARCAS,selMar,'toggleMar');}
 function toggleMar(m,c){if(c)selMar.add(m);else selMar.delete(m);msTags('marcaTags','marcaInp',selMar,'qMar',filtrarMarcas);aplicar();}
 function qMar(m){selMar.delete(m);msTags('marcaTags','marcaInp',selMar,'qMar',filtrarMarcas);aplicar();}
 
+function abrirEntregas(){document.getElementById('entregaDD').classList.add('open');filtrarEntregas();}
+function filtrarEntregas(){msRender('entregaDD',ENTREGAS,selEnt,'toggleEnt');}
+function toggleEnt(e,c){if(c)selEnt.add(e);else selEnt.delete(e);msTags('entregaTags','entregaInp',selEnt,'qEnt',filtrarEntregas);aplicar();}
+function qEnt(e){selEnt.delete(e);msTags('entregaTags','entregaInp',selEnt,'qEnt',filtrarEntregas);aplicar();}
+
+function abrirCuotas(){document.getElementById('cuotaDD').classList.add('open');filtrarCuotas();}
+function filtrarCuotas(){msRender('cuotaDD',CUOTAS,selCuo,'toggleCuo');}
+function toggleCuo(c,v){if(v)selCuo.add(c);else selCuo.delete(c);msTags('cuotaTags','cuotaInp',selCuo,'qCuo',filtrarCuotas);aplicar();}
+function qCuo(c){selCuo.delete(c);msTags('cuotaTags','cuotaInp',selCuo,'qCuo',filtrarCuotas);aplicar();}
+
 // Cerrar dropdowns al click afuera
-['familia','rubro','marca'].forEach(n=>{
+['familia','rubro','marca','entrega','cuota'].forEach(n=>{
   document.addEventListener('click',e=>{
     if(!document.getElementById(n+'Wrap').contains(e.target))
       document.getElementById(n+'DD').classList.remove('open');
   });
-  msRender(n+'DD', n==='familia'?FAMILIAS:n==='rubro'?RUBROS:MARCAS,
-    n==='familia'?selFam:n==='rubro'?selRub:selMar,
-    'toggle'+n.charAt(0).toUpperCase()+n.slice(1,3));
 });
+msRender('familiaDD',FAMILIAS,selFam,'toggleFam');
+msRender('rubroDD',RUBROS,selRub,'toggleRub');
+msRender('marcaDD',MARCAS,selMar,'toggleMar');
+msRender('entregaDD',ENTREGAS,selEnt,'toggleEnt');
+msRender('cuotaDD',CUOTAS,selCuo,'toggleCuo');
 
 drpFrom=FMAX; drpTo=FMAX;
 drpInit();
